@@ -1,5 +1,3 @@
-import time
-import datetime
 import pytz
 import pyupbit
 import telegram
@@ -15,14 +13,12 @@ from aiohttp import ClientSession
 from aiogram import Bot
 from asyncio_throttle import Throttler
 from urllib.parse import urlencode
-import math
 import numpy as np
 import pandas as pd
 import threading
 import base64
 import json
 import configparser
-import traceback
 import hmac
 import logging
 import warnings
@@ -354,6 +350,8 @@ class TradingBot:
         self.cache = {}  # Cache attribute
         self.terminate_event = asyncio.Event()  # Terminate event
         self.scheduled_tasks = []  # List to hold scheduled tasks
+        self.trailing_stop = None
+        self.trailing_stop_pct = 0.02  # 2% trailing stop, adjust as needed
 
     @classmethod
     async def create(cls, session, ticker, bot, slippage=0.01, trading_fee=0.0005):
@@ -685,7 +683,6 @@ class TradingBot:
             await self.handle_error(e, "getting allocated amount")
             return None
 
-           
     # Excute on my own strategy
     # Buying Strategy:
     #If the ticker price is above the 5-day MA and at least two of the indicators (RSI, MACD, Bollinger Bands, TWAP) show a positive sign, buy the ticker using 50% of your current balance.
@@ -693,25 +690,62 @@ class TradingBot:
     # Selling Strategy:
     #If the ticker price drops below the 5-day MA, sell half of your holding of that ticker.
     #If the ticker price drops below the 10-day MA, sell all of your holding of that ticker.
-    async def execute_trade(self, volume):
-        try:
-            if volume == 0:
-                return
+    
 
-            data = await self.get_data()
-            action = self.decide_trade_action(data)
+    # Strategy of buy trading
+    async def strategy(self):
+        await self.analyze_market()
 
-            if action == "BUY":
-                await self.execute_buy(data)
-            elif action == "SELL_HALF":
-                await self.execute_sell_half(data)
-            elif action == "SELL_ALL":
-                await self.execute_sell_all(data)
-        
-            await asyncio.sleep(10)
+        if self.buy_signal:
+            current_price = await self.get_current_price(self.ticker)
+            buy_amount = self.balance / current_price
+            await self.async_buy_market_order(self.ticker, buy_amount)
 
-        except Exception as e:
-            await self.handle_error(f"Error in executing trade for {self.ticker}: {e}")
+
+    async def get_buy_signals(self):
+        ma_5 = await self.get_moving_average(5)
+        ma_10 = await self.get_moving_average(10)
+
+        await self.get_rsi()
+        rsi_buy_signal = self.rsi < 30
+
+        await self.get_macd()
+        macd_buy_signal = self.macd_histogram > 0 and self.previous_macd_histogram < 0
+
+        bollinger_bands = await self.get_bollinger_bands()
+        bb_buy_signal = bollinger_bands['lower_band'].iloc[-1] > self.get_current_price(self.ticker)
+
+        return [rsi_buy_signal, macd_buy_signal, bb_buy_signal]
+
+
+    async def get_sell_signals(self):
+        ma_5 = await self.get_moving_average(5)
+        ma_10 = await self.get_moving_average(10)
+
+        await self.get_rsi()
+        rsi_sell_signal = self.rsi > 70
+
+        await self.get_macd()
+        macd_sell_signal = self.macd_histogram < 0 and self.previous_macd_histogram > 0
+
+        bollinger_bands = await self.get_bollinger_bands()
+        bb_sell_signal = bollinger_bands['upper_band'].iloc[-1] < self.get_current_price(self.ticker)
+
+        return [rsi_sell_signal, macd_sell_signal, bb_sell_signal]
+           
+
+    async def update_trailing_stop(self):
+        current_price = await self.get_current_price(self.ticker)
+
+        if self.trailing_stop is None:
+            self.trailing_stop = current_price * (1 - self.trailing_stop_pct)
+
+        if current_price > self.trailing_stop / (1 - self.trailing_stop_pct):
+            self.trailing_stop = current_price * (1 - self.trailing_stop_pct)
+
+        if current_price <= self.trailing_stop:
+            sell_amount = self.position_size
+            await self.async_sell_market_order(self.ticker, sell_amount)
 
 
     # Buy along the allocated method on MA of 5 days and 10 days each 50% of remained balance
@@ -941,29 +975,51 @@ class TradingBot:
 #The main function sets up and manages the trading bot, initializing all required components, 
 # fetching required data, and managing the execution of the various tasks. 
 # It also handles scheduling and sending notifications via Telegram.
+async def run_strategy_for_all_bots(bot_instances):
+    while True:
+        for bot in bot_instances:
+            await bot.strategy()
+            await bot.update_trailing_stop()
+        await asyncio.sleep(60)  # Adjust the sleep time as needed
+
+
 async def main():
     bot = Bot(token=TELEGRAM_BOT_TOKEN)
-
     tickers = ["KRW-BTC", "KRW-ETH", "KRW-DOGE"]
 
     async with aiohttp.ClientSession() as session:
-        tasks = await initialize_trading_bots(session, tickers, bot)
+        bot_instances = [await TradingBot.create(session, ticker, bot) for ticker in tickers]
 
-        async def schedule_notifications():
-            schedule.every().day.at("09:00").do(lambda: asyncio.create_task(send_daily_notification(bot)))
-            while True:
-                await asyncio.get_running_loop().run_in_executor(None, schedule.run_pending)
-                await asyncio.sleep(60)
+        try:
+            await send_initial_notification(bot, session)  # Pass the session
 
-        tasks.append(schedule_notifications())
-        await asyncio.gather(*tasks, return_exceptions=True)
+            trading_pairs = ["KRW-BTC", "KRW-ETH", "KRW-DOGE"]
+            tasks = await initialize_trading_bots(session, trading_pairs, bot)
 
-        await cleanup(bot_instances)
+            tasks.append(run_strategy_for_all_bots(bot_instances))
+
+            async def schedule_notifications():
+                schedule.every().day.at("09:00").do(lambda: asyncio.create_task(send_daily_notification(bot)))
+                while True:
+                    await asyncio.get_running_loop().run_in_executor(None, schedule.run_pending)
+                    await asyncio.sleep(60)
+
+            tasks.append(schedule_notifications())
+            await asyncio.gather(*tasks, return_exceptions=True)
+
+            # Orders to be processed
+            orders = [("BTC-KRW", 0.01), ("ETH-KRW", 0.1), ("DOGE-KRW", 100)]
+            await process_orders_and_send_balance(session, orders)
+        except Exception as e:
+            logger.exception("An error occurred in main(): %s", e)
+        finally:
+            await cleanup(bot_instances)
 
     await bot.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
