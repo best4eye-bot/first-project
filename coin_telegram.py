@@ -27,6 +27,7 @@ import hmac
 import logging
 import warnings
 from aiogram.utils.deprecated import deprecated
+from throttler import Throttler
 warnings.simplefilter("ignore", deprecated)
 logging.basicConfig(level=logging.DEBUG)
 
@@ -71,26 +72,37 @@ def create_jwt_token(access_key, secret_key, query):
     return jwt_token
 
 
-# Initialize a Throttler instance
-# Set the rate limit to 10 requests per second and 600 requests per minute as per Upbit's rate limits
-throttler = Throttler(rate_limit=10, period=1)  # 10 requests per second
-throttler_minute = Throttler(rate_limit=600, period=60)  # 600 requests per minute
+# Initialize Throttler instances
+# For order requests: 8 requests per second and 200 requests per minute
+order_throttler = Throttler(rate_limit=8, period=1)  # 8 requests per second
+order_throttler_minute = Throttler(rate_limit=200, period=60)  # 200 requests per minute
 
+# For other API requests: 30 requests per second and 900 requests per minute
+api_throttler = Throttler(rate_limit=30, period=1)  # 30 requests per second
+api_throttler_minute = Throttler(rate_limit=900, period=60)  # 900 requests per minute
 
 # Connect Upbit API with async using aiohttp 'fetch()'
-async def fetch(url, access_key, secret_key, query, headers=None):
+async def fetch(url, access_key, secret_key, query, is_order_request=False):
     jwt_token = create_jwt_token(access_key, secret_key, query)
     authorization_token = f"Bearer {jwt_token}"
     headers = {"Authorization": authorization_token, "Content-Type": "application/json; charset=utf-8"}
-    
-    async with throttler, throttler_minute:  # apply throttling
+
+    if is_order_request:
+        throttler_to_use = order_throttler
+        throttler_minute_to_use = order_throttler_minute
+    else:
+        throttler_to_use = api_throttler
+        throttler_minute_to_use = api_throttler_minute
+
+    async with throttler_to_use, throttler_minute_to_use:  # apply throttling
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
                 # Handle 429 status code
                 if response.status == 429:
-                    await asyncio.sleep(1)  # You can adjust the sleep time according to your needs
-                    return await fetch(url, access_key, secret_key, query, headers)
-                    
+                    logger.warning("API rate limit reached, sleeping for 1 second")
+                    await asyncio.sleep(1)
+                    return await fetch(url, access_key, secret_key, query, is_order_request)
+
                 data = await response.json()
                 return data
 
@@ -109,19 +121,19 @@ async def send_telegram_message(bot, message):
         logger.error(f"Error sending message: {e}")
 
     finally:
-        await bot.get_session()
+        await bot.close()
 
 
 # Fetch account balances from Upbit API
-async def get_balances():
+async def get_balances(session):
     query = {}
     url = "https://api.upbit.com/v1/accounts"
-    return await fetch(url, UPBIT_ACCESS_KEY, UPBIT_SECRET_KEY, json.dumps(query))
+    return await fetch(session, url, UPBIT_ACCESS_KEY, UPBIT_SECRET_KEY, json.dumps(query))
 
 
 # Get the total KRW balance of each asset
-async def get_balance():
-    balances = await get_balances()
+async def get_balance(session):
+    balances = await get_balances(session)
     if not balances:
         logger.error("Error fetching balances.")
         return None
@@ -138,7 +150,7 @@ async def get_balance():
             total_krw_balance += float(balance.get('balance', 0))
         else:
             ticker = f"KRW-{currency}"
-            current_price = await get_current_price(ticker)
+            current_price = await get_current_price(session, ticker)
             if current_price:
                 total_krw_balance += float(balance.get('balance', 0)) * current_price
             else:
@@ -184,7 +196,7 @@ async def fetch_trading_pair_prices(session, trading_pairs):
     if not trading_pair_prices:
         logger.error("No trading pair prices were fetched successfully.")
     else:
-        # Log an info message for each trading pair price
+        # Log an info message for each trading pair       
         for pair, price in trading_pair_prices.items():
             if price is None:
                 logger.error(f"Failed to fetch price for {pair}")
@@ -205,7 +217,7 @@ async def buy_market_order(session, ticker, volume):
     }
 
     # Use the fetch() function instead of repeating the request process
-    response_data = await fetch(session, url, UPBIT_ACCESS_KEY, UPBIT_SECRET_KEY, json.dumps(query))
+    response_data = await fetch(url, UPBIT_ACCESS_KEY, UPBIT_SECRET_KEY, json.dumps(query))
 
     if 'uuid' in response_data:
         logger.info(f"Successfully placed buy market order for {ticker} with volume {volume}")
@@ -230,37 +242,31 @@ async def get_krw_balance(balances):
 # Telegram initial notification message
 async def send_initial_notification(bot, session):
     try:
-        balances_future = asyncio.ensure_future(get_balances(session))
-        prices_future = asyncio.ensure_future(fetch_trading_pair_prices(session))
+        # Send a message to inform that the bot has started
+        await send_telegram_message(bot, "Bot has started.")
         
-        # Await for both tasks to finish
-        balances, trading_pair_prices = await asyncio.gather(balances_future, prices_future)
+        # Schedule the execution of get_balances, fetch_moving_averages, and get_orders coroutines using ensure_future
+        balances_future = asyncio.ensure_future(get_balances(session))
+        moving_averages_future = asyncio.ensure_future(fetch_moving_averages(session))
+        orders_future = asyncio.ensure_future(get_orders(session))
 
-        krw_balance = await get_krw_balance(balances)
-        if krw_balance is None:
-            logger.error("Error fetching KRW balance")
-            await send_telegram_message(bot, "Error fetching KRW balance")
-            return
+        # Wait for all the scheduled coroutines to complete using asyncio.gather
+        balances, moving_averages, orders = await asyncio.gather(
+            balances_future, moving_averages_future, orders_future
+        )
 
-        if trading_pair_prices is None:
-            logger.error("Error fetching trading pair prices")
-            await send_telegram_message(bot, "Error fetching trading pair prices")
-            return
+        # Format the balances, moving averages, and orders information
+        formatted_balances = format_balances(balances)
+        formatted_moving_averages = format_moving_averages(moving_averages)
+        formatted_orders = format_orders(orders)
 
-        krw_btc_price = trading_pair_prices.get("KRW-BTC", "N/A")
-        krw_eth_price = trading_pair_prices.get("KRW-ETH", "N/A")
-        krw_doge_price = trading_pair_prices.get("KRW-DOGE", "N/A")
-
-        message = f"My KRW balance: {krw_balance} KRW\n"
-        message += f"Current KRW-BTC price: {krw_btc_price} KRW/BTC\n"
-        message += f"Current KRW-ETH price: {krw_eth_price} KRW/ETH\n"
-        message += f"Current KRW-DOGE price: {krw_doge_price} KRW/DOGE\n"
-        message += f"Good luck for Autotrading!"
-
-        await send_telegram_message(bot, message)
+        # Send the formatted information as a message
+        await send_telegram_message(bot, f"Initial balances:\n{formatted_balances}")
+        await send_telegram_message(bot, f"Moving averages:\n{formatted_moving_averages}")
+        await send_telegram_message(bot, f"Current orders:\n{formatted_orders}")
 
     except Exception as e:
-        logger.exception(f"Error in sending initial notification: {e}")
+        logging.exception(f"Error in sending initial notification: {e}")
         await send_telegram_message(bot, f"Error in sending initial notification: {e}")
 
 
@@ -310,6 +316,7 @@ async def initialize_trading_bots(session, trading_pairs, bot):
     return trading_bots
 
 
+
 # Trading Bot class part    
 class TradingBot:
     class CurrentPriceFetchError(Exception):
@@ -350,18 +357,24 @@ class TradingBot:
 
     @classmethod
     async def create(cls, session, ticker, bot, slippage=0.01, trading_fee=0.0005):
-        bot_instance = cls(session, ticker, bot, slippage, trading_fee)
-        bot_instance.base_currency = 'KRW'  # Set the base currency here
-        bot_instance.position_size = await bot_instance.get_position_size()
-        await bot_instance.fetch_balances()  # Fetch balances when creating a new instance
-        return bot_instance
+        try:
+            bot_instance = cls(session, ticker, bot, slippage, trading_fee)
+            bot_instance.base_currency = 'KRW'  # Set the base currency here
+            bot_instance.position_size = await bot_instance.get_position_size()
+            await bot_instance.fetch_balances()  # Fetch balances when creating a new instance
+            return bot_instance
+        except Exception as e:
+            logger.error(f"Error creating trading bot for {ticker}: {e}")
+            return None
 
     # Session closer
     async def close(self):
-        await self.session.close()
+        try:
+            await self.session.close()
+        except Exception as e:
+            logger.error(f"Error closing session for {self.ticker}: {e}")
 
-
-    # Authencication on Upbit API header function 
+    # Authentication on Upbit API header function 
     def get_authentication_headers(self, query):
         query_string = urlencode(query).encode()
         query_hash = hashlib.sha512(query_string).hexdigest()
@@ -377,81 +390,69 @@ class TradingBot:
         headers = {"Authorization": authorize_token, "Content-Type": "application/json"}
 
         return headers
-
-
-    # Make fetch for read balance
+    
+    # Fetch balances
     async def fetch_balances(self):
         url = "https://api.upbit.com/v1/accounts"
         query = {}
         headers = self.get_authentication_headers(query)
 
-        async with self.session.get(url, headers=headers) as response:
-            data = await response.json()
-            if 'error' in data:
-                logger.error(f"Error fetching balances: {data['error']}")
-                self.balances = None
-            else:
-                self.balances = {item['currency']: float(item["balance"]) for item in data}
+        try:
+            async with self.session.get(url, headers=headers) as response:
+                data = await response.json()
+                if 'error' in data:
+                    logger.error(f"Error fetching balances for {self.ticker}: {data['error']}")
+                    self.balances = None
+                else:
+                    self.balances = {item['currency']: float(item["balance"]) for item in data}
+        except Exception as e:
+            logger.error(f"Error fetching balances for {self.ticker}: {e}")
+            self.balances = None
 
 
-    # Get account balance
     async def get_account_balance(self, currency):
-        if self.balances is None:
-            await self.fetch_balances()
+        try:
+            if self.balances is None:
+                await self.fetch_balances()
 
-        if self.balances is None:
+            if self.balances is None:
+                return 0.0
+
+            balance = self.balances.get(currency)
+            if balance is None:
+                logger.error(f"No balance found for currency: {currency}")
+            return balance
+        except Exception as e:
+            logger.error(f"Error getting account balance for {currency}: {e}")
             return 0.0
 
-        balance = self.balances.get(currency)
-        if balance is None:
-            logger.error(f"No balance found for currency: {currency}")
-        return balance
-
-
-    # Get volume
     async def get_volume(self, current_price, allocated_amount):
         try:
             if allocated_amount is None:
                 logger.error(f"Error fetching allocated amount for {self.ticker}")
                 return None
 
-            # Calculate the volume based on the allocated amount and the current price
             volume = allocated_amount / current_price
-
             return volume
         except Exception as e:
-            await self.handle_error(e, "getting volume")
+            logger.error(f"Error getting volume for {self.ticker}: {e}")
             return None
 
-
-    # Get current price of tickers
     async def get_current_price(self, ticker):
         url = f"https://api.upbit.com/v1/ticker"
         query = {"markets": ticker}
-
         headers = self.get_authentication_headers(query)
 
-        async with self.session.get(url, params=query, headers=headers) as response:
-            data = await response.json()
-            if 'error' in data:
-                raise CurrentPriceFetchError(f"Error fetching {ticker} current price: {data['error']}")
-            return data[0]['trade_price']
-        
+        try:
+            async with self.session.get(url, params=query, headers=headers) as response:
+                data = await response.json()
+                if 'error' in data:
+                    raise CurrentPriceFetchError(f"Error fetching {ticker} current price: {data['error']}")
+                return data[0]['trade_price']
+        except Exception as e:
+            logger.error(f"Error fetching current price for {ticker}: {e}")
+            return None
 
-    # After Bot is stopping call cleanup for not using HTTP
-    async def cleanup(self):
-        await self.session.close()     
-
-
-    # Trading fee and additional cost calcuate function
-    def calculate_transaction_cost(self, price, volume, is_maker=True):
-        global MAKER_FEE, TAKER_FEE, SLIPPAGE
-        fee = MAKER_FEE if is_maker else TAKER_FEE
-        total_cost = price * volume * (1 + fee) * (1 + SLIPPAGE)
-        return total_cost
-
-
-    # Sell market order definition use aiohttp for async
     async def async_sell_market_order(self, ticker, volume):
         url = "https://api.upbit.com/v1/orders"
         query = {
@@ -461,15 +462,10 @@ class TradingBot:
             "ord_type": "market",
         }
 
-        query_string = urlencode(query)
-        m = hashlib.sha512()
-        m.update(query_string.encode())
-        query_hash = m.hexdigest()
-
-        headers = self.get_authentication_headers("POST", query, query_hash)
+        headers = self.get_authentication_headers(query)
 
         try:
-            async with self.session.post(url, data=query_string, headers=headers) as response:
+            async with self.session.post(url, json=query, headers=headers) as response:
                 response_data = await response.json()
                 if response.status == 201:
                     logger.info(f"Successfully placed sell market order for {ticker} with volume {volume}")
@@ -477,10 +473,11 @@ class TradingBot:
                     logger.error(f"Error placing sell market order for {ticker}: {response_data}")
                     if 'error' in response_data and 'rate limit' in response_data['error']:
                         logger.warning("Rate limit exceeded. Sleeping for 60 seconds.")
-                        await asyncio.sleep(60)  # Delay for 60 seconds
+                        await asyncio.sleep(60)
         except Exception as e:
-            logger.exception(f"Exception occurred: {e}")
-            await asyncio.sleep(1)  # Delay for 1 second
+            logger.error(f"Error placing sell market order for {ticker}: {e}")
+            await asyncio.sleep(1)
+
 
 
     # error handling for excess API call
@@ -506,7 +503,6 @@ class TradingBot:
             risk_amount = krw_balance * self.risk_per_trade
             volume = (risk_amount / current_price) * (1 - 0.0025) * (1 - 0.01)
 
-            # Round down to the nearest integer
             return int(volume)
 
         except Exception as e:
@@ -517,19 +513,22 @@ class TradingBot:
     # get MA on simplyfing 
     async def get_moving_average(self, window):
         try:
-            candles = await self.get_ohlcv(self.ticker, interval='day', count=window)
+            candles = await self.get_async_ohlcv(self.ticker, interval='day', count=window)
             if candles is None:
                 await self.handle_error("Error fetching data for moving average calculation", "getting moving average")
                 return None
-            print(candles)
-            close_prices = [candle['close'] for candle in candles]
+            
+            print("Candles:", candles)  # Add this line to print the candles data
+
+            close_prices = [candle['trade_price'] for candle in candles]
             close_prices_series = pd.Series(close_prices)
             moving_average = close_prices_series.rolling(window=window).mean().values[-1]
             return moving_average
         except Exception as e:
-            logging.exception(f"Error in getting moving average for {self.ticker}: {e}")
+            logger.error(f"Error in getting moving average for {self.ticker}: {e}", exc_info=True)
             await self.handle_error(e, "getting moving average")
             return None
+
 
 
     # Get ohlcv, using sigle session for multiple requests not everytime multi sessions
@@ -538,28 +537,29 @@ class TradingBot:
         if interval == 'day':
             url = "https://api.upbit.com/v1/candles/days"
         else:
-         url = f"https://api.upbit.com/v1/candles/minutes/{interval}"
-    
+            url = f"https://api.upbit.com/v1/candles/minutes/{interval}"
+
         params = {"market": ticker, "count": count}
 
         try:
             async with self.session.get(url, params=params) as response:
                 data = await response.json()
                 if 'error' in data:
-                    logging.error(f"Error fetching {ticker} OHLCV data: {data['error']}")
+                    logger.error(f"Error fetching {ticker} OHLCV data: {data['error']}")
                     return None
                 return pd.DataFrame(data)
         except aiohttp.ClientResponseError as e:
             if e.status == 429:
-                logging.warning(f"Rate limit exceeded while fetching {ticker} OHLCV data. Retrying in {e.headers.get('Retry-After', 60)} seconds.")
+                logger.warning(f"Rate limit exceeded while fetching {ticker} OHLCV data. Retrying in {e.headers.get('Retry-After', 60)} seconds.")
                 await asyncio.sleep(int(e.headers.get('Retry-After', 60)))
                 return await self.get_async_ohlcv(ticker, interval, count)
             else:
-                logging.exception(f"Error fetching {ticker} OHLCV data: {e}")
+                logger.error(f"Error fetching {ticker} OHLCV data: {e}", exc_info=True)
                 return None
         except Exception as e:
-            logging.exception(f"Error fetching {ticker} OHLCV data: {e}")
+            logger.error(f"Error fetching {ticker} OHLCV data: {e}", exc_info=True)
             return None
+
 
 
     # Asynchronous call for get_ohlcv() 
@@ -594,13 +594,13 @@ class TradingBot:
     # Get Moving Average 
     async def get_ma(self):
         try:
-            candles = await self.get_ohlcv(self.ticker, interval='day', count=20)
+            candles_df = await self.get_ohlcv(self.ticker, interval='day', count=20)
 
-            if candles is None:
+            if candles_df is None:
                 logger.error(f"Error fetching {self.ticker} data for moving averages calculation")
                 return None
 
-            close = candles['trade_price']
+            close = candles_df['trade_price']
             self.ma_5 = close.rolling(window=5).mean().values[-1]
             self.ma_10 = close.rolling(window=10).mean().values[-1]
             self.ma_20 = close.rolling(window=20).mean().values[-1]
@@ -716,17 +716,18 @@ class TradingBot:
 
     # Buy along the allocated method on MA of 5 days and 10 days each 50% of remained balance
     async def execute_buy(self, data):
+        buy_amount = self.balance * 0.5
         if not await self.validate_order_amount(buy_amount):
             return
-        buy_amount = self.balance * 0.5
+
         trade_cost = self.calculate_transaction_cost(data["current_price"], buy_amount / data["current_price"], True)
-    
+
         if data["current_balance"] < buy_amount + trade_cost:
             await self.handle_error(f"Insufficient balance to cover the cost of the trade. Current balance: {data['current_balance']}, Trade cost: {trade_cost}, Buy amount: {buy_amount}")
             return
-    
+
         await self.async_buy_market_order(self.ticker, (buy_amount - trade_cost) / data["current_price"])
-    
+
         if self.verify_order(self.ticker):
             self.balance -= buy_amount
             self.position_size += (buy_amount - trade_cost) / data["current_price"]
@@ -739,7 +740,7 @@ class TradingBot:
         if market_type == "KRW" and allocated_amount < 5000:
             logger.error(f"Order amount {allocated_amount} is below the minimum for KRW market (5000 KRW)")
             return False
-        elif market_type in ["BTC", "ETH", "USDT"] and allocated_amount < 10000:
+        elif market_type in ["BTC", "ETH", "DOGE"] and allocated_amount < 10000:
             logger.error(f"Order amount {allocated_amount} is below the minimum for {market_type} market (10000 KRW equivalent)")
             return False
         return True
@@ -747,18 +748,19 @@ class TradingBot:
 
     # Sell half when the price broken 5MA of Trailing Stop
     async def execute_sell_half(self, data):
+        sell_amount = self.position_size * 0.5
         sell_value = sell_amount * await self.get_current_price(self.ticker)
         if not await self.validate_order_amount(sell_value):
             return
-        sell_amount = self.position_size * 0.5
+
         trade_cost = self.calculate_transaction_cost(data["current_price"], sell_amount, False)
-    
+
         if data["current_balance"] < sell_amount * data["current_price"] + trade_cost:
             await self.handle_error(f"Insufficient balance to cover the cost of the trade. Current balance: {data['current_balance']}, Trade cost: {trade_cost}, Sell amount: {sell_amount}")
             return
-    
+
         await self.async_sell_market_order(self.ticker, sell_amount - trade_cost)
-    
+
         if self.verify_order(self.ticker):
             self.balance += sell_amount * data["current_price"] - trade_cost
             self.position_size -= sell_amount
@@ -767,24 +769,25 @@ class TradingBot:
 
     # Sell all when the price broken 10MA of Trailing Stop
     async def execute_sell_all(self, data):
+        sell_amount = self.position_size
         sell_value = sell_amount * await self.get_current_price(self.ticker)
         if not await self.validate_order_amount(sell_value):
             return
-        sell_amount = self.position_size
+
         trade_cost = self.calculate_transaction_cost(data["current_price"], sell_amount, False)
-    
+
         if data["current_balance"] < sell_amount * data["current_price"] + trade_cost:
             await self.handle_error(f"Insufficient balance to cover the cost of the trade. Current balance: {data['current_balance']}, Trade cost: {trade_cost}, Sell amount: {sell_amount}")
             return
-    
+
         await self.async_sell_market_order(self.ticker, sell_amount - trade_cost)
-    
+
         if self.verify_order(self.ticker):
             self.balance += sell_amount * data["current_price"] - trade_cost
             self.position_size = 0
             await send_telegram_message(self.bot, f"Sold all {self.ticker} at {data['current_price']}")
 
-        
+
     # Relative Strength Index - 높을수록 상승추세크고 낮을수록 하락추세크다
     async def get_rsi(self, time_frame=14):
         try:
@@ -914,76 +917,25 @@ class TradingBot:
             await send_telegram_message(self.bot, f"Error in getting Bollinger Bands for {self.ticker}: {e}")
 
 
-    # Encapsulation of repeated calculation
-    async def check_and_execute_trade(self, condition, trade_volume):
-        if condition and self.position_size is not None:
-            await self.execute_trade(trade_volume)
-            self.buy_signal = False  # prevent buying immediately after selling
+    async def execute_sell_all(self, data):
+        sell_amount = self.position_size
+        sell_value = sell_amount * await self.get_current_price(self.ticker)
+        if not await self.validate_order_amount(sell_value):
+            return
 
+        trade_cost = self.calculate_transaction_cost(data["current_price"], sell_amount, False)
 
-    # class TradingBot run()
-    async def run(self):
-        await self.get_bollinger_bands()
-        while True:
-            try:
-                await self.get_rsi()
-                await self.get_macd()
-                await self.get_bollinger_bands()
-                await self.get_twap(volume=await self.get_volume())
+        if data["current_balance"] < sell_amount * data["current_price"] + trade_cost:
+            await self.handle_error(f"Insufficient balance to cover the cost of the trade. Current balance: {data['current_balance']}, Trade cost: {trade_cost}, Sell amount: {sell_amount}")
+            return
 
-                current_price = await self.get_current_price(self.ticker)
+        await self.async_sell_market_order(self.ticker, sell_amount - trade_cost)
 
-                if self.buy_signal:
-                    await self.check_and_execute_trade(True, self.balance * 0.5)
+        if self.verify_order(self.ticker):
+            self.balance += sell_amount * data["current_price"] - trade_cost
+            self.position_size = 0
+            await send_telegram_message(self.bot, f"Sold all {self.ticker} at {data['current_price']}")
 
-                if self.rsi is not None and self.macd is not None and self.bollinger_bands is not None:
-                    # Check RSI, MACD, Bollinger Bands, and TWAP
-                    buy_condition = not self.buy_signal and (
-                        (self.rsi < 30) or
-                        (self.macd > self.signal) or
-                        (current_price < self.bollinger_bands[0]) or
-                        (current_price > self.twap)
-                    )
-                    await self.check_and_execute_trade(buy_condition, self.balance * 0.5)
-
-                    # Check Take Profit
-                    take_profit_condition = current_price > self.entry_price * (1 + self.take_profit)
-                    await self.check_and_execute_trade(take_profit_condition, -self.position_size)
-
-                    # Update Stop Loss Price
-                    if self.position_size is not None and self.stop_loss is not None:
-                        if current_price > self.stop_loss:
-                            self.stop_loss = current_price * (1 - self.trailing_stop_loss)
-
-                    # Check Stop Loss
-                    stop_loss_condition = current_price < self.stop_loss
-                    await self.check_and_execute_trade(stop_loss_condition, -self.position_size)
-
-                await asyncio.sleep(30)
-
-            except Exception as e:
-                logger.exception(f"Error in selling {self.ticker}: {e}")
-                await send_telegram_message(self.bot, f"Error in {self.ticker}: {e}")
-
-
-# Schedule the function to run every day at 9am, start the event loop
-async def initialize_trading_bots(session, trading_pairs, bot):
-    trading_bots = await create_trading_bots(session, trading_pairs, bot)
-    tasks = [bot_instance.run() for bot_instance in trading_bots]
-    return tasks
-
-
-async def process_orders_and_send_balance(session, orders):
-    balance = await get_balance(session)
-    await send_telegram_message(bot, f"Balance: {balance:,} KRW")
-    await process_buy_orders(session, orders)
-
-
-# Clean up all the bot_instance
-async def cleanup(bot_instances):
-    for bot_instance in bot_instances:
-        await bot_instance.session.close()
-        await bot_instance.bot.close()
 
 
 #The main function sets up and manages the trading bot, initializing all required components, 
@@ -992,46 +944,27 @@ async def cleanup(bot_instances):
 async def main():
     bot = Bot(token=TELEGRAM_BOT_TOKEN)
 
-    # Run the fetch_current_prices() function for a list of tickers
     tickers = ["KRW-BTC", "KRW-ETH", "KRW-DOGE"]
 
     async with aiohttp.ClientSession() as session:
-        # create bot instances here
-        bot_instances = [await TradingBot.create(session, ticker, bot) for ticker in tickers]
+        tasks = await initialize_trading_bots(session, tickers, bot)
 
-        try:
-            # Add a sleep here to prevent rate limit issues
-            await asyncio.sleep(5)
+        async def schedule_notifications():
+            schedule.every().day.at("09:00").do(lambda: asyncio.create_task(send_daily_notification(bot)))
+            while True:
+                await asyncio.get_running_loop().run_in_executor(None, schedule.run_pending)
+                await asyncio.sleep(60)
 
-            await send_initial_notification(bot, session) # Pass the session
+        tasks.append(schedule_notifications())
+        await asyncio.gather(*tasks, return_exceptions=True)
 
-            trading_pairs = ["KRW-BTC", "KRW-ETH", "KRW-DOGE"]
-            tasks = await initialize_trading_bots(session, trading_pairs, bot)
-
-            # Run the fetch_trading_pair_prices() function
-            trading_pair_prices = await fetch_trading_pair_prices(session)  # Store the returned data
-
-            async def schedule_notifications():
-                schedule.every().day.at("09:00").do(lambda: asyncio.create_task(send_daily_notification(bot)))
-                while True:
-                    await asyncio.get_running_loop().run_in_executor(None, schedule.run_pending)
-                    await asyncio.sleep(60)
-
-            tasks.append(schedule_notifications())
-            await asyncio.gather(*tasks, return_exceptions=True)
-
-            # Orders to be processed
-            orders = [("BTC-KRW", 0.01), ("ETH-KRW", 0.1), ("DOGE-KRW", 100)]
-            await process_orders_and_send_balance(session, orders)
-        except Exception as e:
-            logger.exception("An error occurred in main(): %s", e)
-        finally:           
-            await cleanup(bot_instances)
+        await cleanup(bot_instances)
 
     await bot.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
