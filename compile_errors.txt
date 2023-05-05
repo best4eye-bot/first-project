@@ -1,7 +1,25 @@
 (peterpae) ubuntu@upbit-01:~/Auto$ python coin_telegram.py
+Traceback (most recent call last):
+  File "coin_telegram.py", line 3, in <module>
+    import telegram
+ModuleNotFoundError: No module named 'telegram'
+(peterpae) ubuntu@upbit-01:~/Auto$ pip install python-telegram-bot
+Collecting python-telegram-bot
+  Using cached python_telegram_bot-20.2-py3-none-any.whl (535 kB)
+Requirement already satisfied: httpx~=0.23.3 in /home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages (from python-telegram-bot) (0.23.3)
+Requirement already satisfied: sniffio in /home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages (from httpx~=0.23.3->python-telegram-bot) (1.3.0)
+Requirement already satisfied: httpcore<0.17.0,>=0.15.0 in /home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages (from httpx~=0.23.3->python-telegram-bot) (0.16.3)
+Requirement already satisfied: rfc3986[idna2008]<2,>=1.3 in /home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages (from httpx~=0.23.3->python-telegram-bot) (1.5.0)
+Requirement already satisfied: certifi in /home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages (from httpx~=0.23.3->python-telegram-bot) (2022.12.7)
+Requirement already satisfied: anyio<5.0,>=3.0 in /home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages (from httpcore<0.17.0,>=0.15.0->httpx~=0.23.3->python-telegram-bot) (3.6.2)
+Requirement already satisfied: h11<0.15,>=0.13 in /home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages (from httpcore<0.17.0,>=0.15.0->httpx~=0.23.3->python-telegram-bot) (0.14.0)
+Requirement already satisfied: idna in /home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages (from rfc3986[idna2008]<2,>=1.3->httpx~=0.23.3->python-telegram-bot) (3.4)
+Installing collected packages: python-telegram-bot
+Successfully installed python-telegram-bot-20.2
+(peterpae) ubuntu@upbit-01:~/Auto$ python coin_telegram.py
 DEBUG:asyncio:Using selector: EpollSelector
 DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Bot has started.'}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":542,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683287556,"text":"Bot has started."}}'"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":555,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683289257,"text":"Bot has started."}}'"
 coin_telegram.py:121: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 ERROR:root:Error in sending initial notification: name 'fetch_moving_averages' is not defined
@@ -10,7 +28,7 @@ Traceback (most recent call last):
     moving_averages_future = asyncio.ensure_future(fetch_moving_averages(session))
 NameError: name 'fetch_moving_averages' is not defined
 DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in sending initial notification: name 'fetch_moving_averages' is not defined"}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":543,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683287557,"text":"Error in sending initial notification: name \'fetch_moving_averages\' is not defined"}}'"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":556,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683289258,"text":"Error in sending initial notification: name \'fetch_moving_averages\' is not defined"}}'"
 coin_telegram.py:121: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 ERROR:asyncio:Task exception was never retrieved
@@ -22,7 +40,7 @@ Traceback (most recent call last):
     async with session.get_json(url, headers=headers) as response:
 AttributeError: 'ClientSession' object has no attribute 'get_json'
 Candles:     market candle_date_time_utc  ... change_price  change_rate
-0  KRW-BTC  2023-05-05T00:00:00  ...     204000.0     0.005288
+0  KRW-BTC  2023-05-05T00:00:00  ...     264000.0     0.006843
 1  KRW-BTC  2023-05-04T00:00:00  ...    -123000.0    -0.003178
 2  KRW-BTC  2023-05-03T00:00:00  ...     298000.0     0.007759
 3  KRW-BTC  2023-05-02T00:00:00  ...     636000.0     0.016839
@@ -44,11 +62,11 @@ Traceback (most recent call last):
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
 DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-BTC: string indices must be integers'}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":544,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683287558,"text":"Error in getting moving average for KRW-BTC: string indices must be integers"}}'"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":557,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683289259,"text":"Error in getting moving average for KRW-BTC: string indices must be integers"}}'"
 coin_telegram.py:121: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 Candles:     market candle_date_time_utc  ... change_price  change_rate
-0  KRW-BTC  2023-05-05T00:00:00  ...     204000.0     0.005288
+0  KRW-BTC  2023-05-05T00:00:00  ...     264000.0     0.006843
 1  KRW-BTC  2023-05-04T00:00:00  ...    -123000.0    -0.003178
 2  KRW-BTC  2023-05-03T00:00:00  ...     298000.0     0.007759
 3  KRW-BTC  2023-05-02T00:00:00  ...     636000.0     0.016839
@@ -75,7 +93,7 @@ Traceback (most recent call last):
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
 DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-BTC: string indices must be integers'}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":545,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683287559,"text":"Error in getting moving average for KRW-BTC: string indices must be integers"}}'"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":558,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683289260,"text":"Error in getting moving average for KRW-BTC: string indices must be integers"}}'"
 coin_telegram.py:121: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 ERROR:__main__:Error fetching moving averages for KRW-BTC
@@ -86,11 +104,11 @@ Traceback (most recent call last):
     account = await get_balances()
 TypeError: get_balances() missing 1 required positional argument: 'session'
 DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in getting position size for KRW-BTC: get_balances() missing 1 required positional argument: 'session'"}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":546,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683287560,"text":"Error in getting position size for KRW-BTC: get_balances() missing 1 required positional argument: \'session\'"}}'"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":559,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683289261,"text":"Error in getting position size for KRW-BTC: get_balances() missing 1 required positional argument: \'session\'"}}'"
 coin_telegram.py:121: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 Candles:     market candle_date_time_utc  ... change_price  change_rate
-0  KRW-ETH  2023-05-05T00:00:00  ...      32000.0     0.012754
+0  KRW-ETH  2023-05-05T00:00:00  ...      37000.0     0.014747
 1  KRW-ETH  2023-05-04T00:00:00  ...     -33000.0    -0.012982
 2  KRW-ETH  2023-05-03T00:00:00  ...      38000.0     0.015176
 3  KRW-ETH  2023-05-02T00:00:00  ...      43000.0     0.017473
@@ -112,11 +130,11 @@ Traceback (most recent call last):
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
 DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-ETH: string indices must be integers'}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":547,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683287561,"text":"Error in getting moving average for KRW-ETH: string indices must be integers"}}'"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":560,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683289262,"text":"Error in getting moving average for KRW-ETH: string indices must be integers"}}'"
 coin_telegram.py:121: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 Candles:     market candle_date_time_utc  ... change_price  change_rate
-0  KRW-ETH  2023-05-05T00:00:00  ...      32000.0     0.012754
+0  KRW-ETH  2023-05-05T00:00:00  ...      37000.0     0.014747
 1  KRW-ETH  2023-05-04T00:00:00  ...     -33000.0    -0.012982
 2  KRW-ETH  2023-05-03T00:00:00  ...      38000.0     0.015176
 3  KRW-ETH  2023-05-02T00:00:00  ...      43000.0     0.017473
@@ -143,7 +161,7 @@ Traceback (most recent call last):
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
 DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-ETH: string indices must be integers'}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":548,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683287562,"text":"Error in getting moving average for KRW-ETH: string indices must be integers"}}'"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":561,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683289263,"text":"Error in getting moving average for KRW-ETH: string indices must be integers"}}'"
 coin_telegram.py:121: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 ERROR:__main__:Error fetching moving averages for KRW-ETH
@@ -154,11 +172,11 @@ Traceback (most recent call last):
     account = await get_balances()
 TypeError: get_balances() missing 1 required positional argument: 'session'
 DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in getting position size for KRW-ETH: get_balances() missing 1 required positional argument: 'session'"}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":549,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683287563,"text":"Error in getting position size for KRW-ETH: get_balances() missing 1 required positional argument: \'session\'"}}'"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":562,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683289264,"text":"Error in getting position size for KRW-ETH: get_balances() missing 1 required positional argument: \'session\'"}}'"
 coin_telegram.py:121: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 Candles:      market candle_date_time_utc  ... change_price  change_rate
-0  KRW-DOGE  2023-05-05T00:00:00  ...          NaN     0.000000
+0  KRW-DOGE  2023-05-05T00:00:00  ...          1.0     0.009615
 1  KRW-DOGE  2023-05-04T00:00:00  ...         -3.0    -0.028037
 2  KRW-DOGE  2023-05-03T00:00:00  ...          1.0     0.009434
 3  KRW-DOGE  2023-05-02T00:00:00  ...          1.0     0.009524
@@ -180,11 +198,11 @@ Traceback (most recent call last):
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
 DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-DOGE: string indices must be integers'}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":550,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683287564,"text":"Error in getting moving average for KRW-DOGE: string indices must be integers"}}'"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":563,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683289265,"text":"Error in getting moving average for KRW-DOGE: string indices must be integers"}}'"
 coin_telegram.py:121: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 Candles:      market candle_date_time_utc  ... change_price  change_rate
-0  KRW-DOGE  2023-05-05T00:00:00  ...          NaN     0.000000
+0  KRW-DOGE  2023-05-05T00:00:00  ...          1.0     0.009615
 1  KRW-DOGE  2023-05-04T00:00:00  ...         -3.0    -0.028037
 2  KRW-DOGE  2023-05-03T00:00:00  ...          1.0     0.009434
 3  KRW-DOGE  2023-05-02T00:00:00  ...          1.0     0.009524
@@ -211,7 +229,7 @@ Traceback (most recent call last):
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
 DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-DOGE: string indices must be integers'}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":551,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683287565,"text":"Error in getting moving average for KRW-DOGE: string indices must be integers"}}'"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":564,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683289266,"text":"Error in getting moving average for KRW-DOGE: string indices must be integers"}}'"
 coin_telegram.py:121: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 ERROR:__main__:Error fetching moving averages for KRW-DOGE
@@ -222,15 +240,15 @@ Traceback (most recent call last):
     account = await get_balances()
 TypeError: get_balances() missing 1 required positional argument: 'session'
 DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in getting position size for KRW-DOGE: get_balances() missing 1 required positional argument: 'session'"}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":552,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683287566,"text":"Error in getting position size for KRW-DOGE: get_balances() missing 1 required positional argument: \'session\'"}}'"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":565,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683289267,"text":"Error in getting position size for KRW-DOGE: get_balances() missing 1 required positional argument: \'session\'"}}'"
 coin_telegram.py:121: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
-Exception ignored in: <coroutine object run_pending at 0x7fdc792b6140>
+Exception ignored in: <coroutine object run_pending at 0x7f2e94766bc0>
 Traceback (most recent call last):
   File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
     warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
 TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc792b6140>
+Exception ignored in: <coroutine object run_pending at 0x7f2e94766bc0>
 Traceback (most recent call last):
   File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
     handle = None  # Needed to break cycles when an exception occurs.
@@ -256,7 +274,7 @@ Traceback (most recent call last):
     raise KeyError(key) from err
 KeyError: 'close'
 DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in getting RSI for KRW-BTC: 'close'"}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":553,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683287567,"text":"Error in getting RSI for KRW-BTC: \'close\'"}}'"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":566,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683289268,"text":"Error in getting RSI for KRW-BTC: \'close\'"}}'"
 coin_telegram.py:121: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 ERROR:__main__:Error in getting MACD for KRW-BTC: 'close'
@@ -280,227 +298,97 @@ Traceback (most recent call last):
     raise KeyError(key) from err
 KeyError: 'close'
 DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in getting MACD for KRW-BTC: 'close'"}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":554,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683287568,"text":"Error in getting MACD for KRW-BTC: \'close\'"}}'"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":567,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683289269,"text":"Error in getting MACD for KRW-BTC: \'close\'"}}'"
 coin_telegram.py:121: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
+Exception ignored in: <coroutine object run_pending at 0x7f2e95041b40>
 Traceback (most recent call last):
   File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
     warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
 TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
+Exception ignored in: <coroutine object run_pending at 0x7f2e95041b40>
 Traceback (most recent call last):
   File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
     handle = None  # Needed to break cycles when an exception occurs.
 TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
+Exception ignored in: <coroutine object run_pending at 0x7f2e95041b40>
 Traceback (most recent call last):
   File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
     warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
 TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
+Exception ignored in: <coroutine object run_pending at 0x7f2e95041b40>
 Traceback (most recent call last):
   File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
     handle = None  # Needed to break cycles when an exception occurs.
 TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
+Exception ignored in: <coroutine object run_pending at 0x7f2e95041b40>
 Traceback (most recent call last):
   File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
     warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
 TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
+Exception ignored in: <coroutine object run_pending at 0x7f2e95041b40>
 Traceback (most recent call last):
   File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
     handle = None  # Needed to break cycles when an exception occurs.
 TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
+Exception ignored in: <coroutine object run_pending at 0x7f2e95041b40>
 Traceback (most recent call last):
   File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
     warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
 TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
+Exception ignored in: <coroutine object run_pending at 0x7f2e95041b40>
 Traceback (most recent call last):
   File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
     handle = None  # Needed to break cycles when an exception occurs.
 TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
+Exception ignored in: <coroutine object run_pending at 0x7f2e95041b40>
 Traceback (most recent call last):
   File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
     warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
 TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
+Exception ignored in: <coroutine object run_pending at 0x7f2e95041b40>
 Traceback (most recent call last):
   File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
     handle = None  # Needed to break cycles when an exception occurs.
 TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
+^CERROR:asyncio:unhandled exception during asyncio.run() shutdown
+task: <Task finished name='Task-1' coro=<main() done, defined at coin_telegram.py:1018> exception=NameError("name 'cleanup' is not defined")>
 Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 603, in run_until_complete
+    self.run_forever()
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 570, in run_forever
+    self._run_once()
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1823, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/selectors.py", line 468, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
 Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
+  File "coin_telegram.py", line 1053, in main
+    await asyncio.gather(*tasks, return_exceptions=True)
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
 Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
+  File "coin_telegram.py", line 1064, in main
+    await cleanup(bot_instances)
+NameError: name 'cleanup' is not defined
 Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-^X
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/warnings.py", line 506, in _warn_unawaited_coroutine
-    warn(msg, category=RuntimeWarning, stacklevel=2, source=coro)
-TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <coroutine object run_pending at 0x7fdc79b9edc0>
-Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1860, in _run_once
-    handle = None  # Needed to break cycles when an exception occurs.
-TypeError: issubclass() arg 2 must be a class or tuple of classes
+  File "coin_telegram.py", line 1070, in <module>
+    asyncio.run(main())
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 603, in run_until_complete
+    self.run_forever()
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 570, in run_forever
+    self._run_once()
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 1823, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/selectors.py", line 468, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
