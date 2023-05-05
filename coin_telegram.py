@@ -692,14 +692,45 @@ class TradingBot:
     #If the ticker price drops below the 10-day MA, sell all of your holding of that ticker.
     
 
-    # Strategy of buy trading
+    # Strategy of market analysis for trading
     async def strategy(self):
-        await self.analyze_market()
+        await self.get_rsi()
+        await self.get_macd()
+        await self.get_bollinger_band()
+        await self.get_moving_averages()
 
-        if self.buy_signal:
-            current_price = await self.get_current_price(self.ticker)
-            buy_amount = self.balance / current_price
-            await self.async_buy_market_order(self.ticker, buy_amount)
+        # Buy signal: RSI < 30, MACD histogram > 0, and price > lower Bollinger Band
+        if self.rsi < 30 and self.macd_histogram > 0 and self.current_price > self.lower_band:
+            self.buy_signal = True
+        else:
+            self.buy_signal = False
+
+        # Sell signal: RSI > 70, MACD histogram < 0, and price < upper Bollinger Band
+        if self.rsi > 70 and self.macd_histogram < 0 and self.current_price < self.upper_band:
+            self.sell_signal = True
+        else:
+            self.sell_signal = False
+
+        # Execute the buy or sell orders based on the signals
+        if self.buy_signal and self.balance > 0:
+            data = {
+                "current_price": self.current_price,
+                "current_balance": self.balance,
+            }
+            await self.execute_buy_all(data)
+
+        if self.sell_signal:
+            data = {
+                "current_price": self.current_price,
+                "current_balance": self.position_size * self.current_price,
+            }
+
+            if self.position_size > 0:
+                if self.current_price < self.five_day_moving_average:
+                    await self.execute_sell_half(data)
+                elif self.current_price < self.ten_day_moving_average:
+                    await self.execute_sell_all(data)
+
 
 
     async def get_buy_signals(self):
@@ -988,7 +1019,6 @@ async def main():
     tickers = ["KRW-BTC", "KRW-ETH", "KRW-DOGE"]
 
     async with aiohttp.ClientSession() as session:
-        bot_instances = [await TradingBot.create(session, ticker, bot) for ticker in tickers]
 
         try:
             await send_initial_notification(bot, session)  # Pass the session
@@ -996,13 +1026,13 @@ async def main():
             trading_pairs = ["KRW-BTC", "KRW-ETH", "KRW-DOGE"]
             tasks = await initialize_trading_bots(session, trading_pairs, bot)
 
-            tasks.append(run_strategy_for_all_bots(bot_instances))
+            tasks.append(await run_strategy_for_all_bots(bot_instances))
 
             async def schedule_notifications():
                 schedule.every().day.at("09:00").do(lambda: asyncio.create_task(send_daily_notification(bot)))
                 while True:
                     await asyncio.get_running_loop().run_in_executor(None, schedule.run_pending)
-                    await asyncio.sleep(60)
+                    await asyncio.sleep(5) #Add a sleep to prevent rate limit issues
 
             tasks.append(schedule_notifications())
             await asyncio.gather(*tasks, return_exceptions=True)
