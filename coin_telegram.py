@@ -1016,39 +1016,60 @@ async def run_strategy_for_all_bots(bot_instances):
 
 
 async def main():
+    # Initialize the bot with the token
     bot = Bot(token=TELEGRAM_BOT_TOKEN)
+
+    # Define the tickers for the trading pairs
     tickers = ["KRW-BTC", "KRW-ETH", "KRW-DOGE"]
 
+    # Create an aiohttp ClientSession
     async with aiohttp.ClientSession() as session:
 
         try:
-            await send_initial_notification(bot, session)  # Pass the session
+            # Send an initial notification to the Telegram group
+            await send_initial_notification(bot, session)
 
+            # Initialize trading bots for each trading pair
             trading_pairs = ["KRW-BTC", "KRW-ETH", "KRW-DOGE"]
-            bot_instances = await initialize_trading_bots(session, trading_pairs, bot)
-            tasks = [run_strategy_for_all_bots(bot_instances)]
+            bot_instances = [await TradingBot.create(session, ticker, bot) for ticker in tickers]
 
+            # Create a list of tasks to be run concurrently
+            tasks = []
+
+            # Add the strategy task for all bot instances
+            tasks.append(run_strategy_for_all_bots(bot_instances))
+
+            # Schedule daily notifications
             async def schedule_notifications():
                 schedule.every().day.at("09:00").do(lambda: asyncio.create_task(send_daily_notification(bot)))
                 while True:
                     await asyncio.get_running_loop().run_in_executor(None, schedule.run_pending)
                     await asyncio.sleep(5)  # Add a sleep to prevent rate limit issues
 
+            # Add the scheduled notifications task
             tasks.append(schedule_notifications())
+
+            # Gather all tasks and run them concurrently
             await asyncio.gather(*tasks, return_exceptions=True)
 
-            # Orders to be processed
+            # Process orders and send the updated balance
             orders = [("BTC-KRW", 0.01), ("ETH-KRW", 0.1), ("DOGE-KRW", 100)]
             await process_orders_and_send_balance(session, orders)
+
         except Exception as e:
             logger.exception("An error occurred in main(): %s", e)
+
         finally:
+            # Clean up the bot instances
             await cleanup(bot_instances)
 
+    # Close the bot
     await bot.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+
 
 
 
