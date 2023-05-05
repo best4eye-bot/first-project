@@ -11,6 +11,7 @@ import aiohttp
 import aioschedule as schedule
 from aiohttp import ClientSession
 from aiogram import Bot
+from aiogram import types
 from asyncio_throttle import Throttler
 from urllib.parse import urlencode
 import numpy as np
@@ -92,7 +93,7 @@ async def fetch(url, access_key, secret_key, query, is_order_request=False):
 
     async with throttler_to_use, throttler_minute_to_use:  # apply throttling
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as response:
+            async with session.get_json(url, headers=headers) as response:
                 # Handle 429 status code
                 if response.status == 429:
                     logger.warning("API rate limit reached, sleeping for 1 second")
@@ -1024,15 +1025,14 @@ async def main():
             await send_initial_notification(bot, session)  # Pass the session
 
             trading_pairs = ["KRW-BTC", "KRW-ETH", "KRW-DOGE"]
-            tasks = await initialize_trading_bots(session, trading_pairs, bot)
-
-            tasks.append(await run_strategy_for_all_bots(bot_instances))
+            bot_instances = await initialize_trading_bots(session, trading_pairs, bot)
+            tasks = [run_strategy_for_all_bots(bot_instances)]
 
             async def schedule_notifications():
                 schedule.every().day.at("09:00").do(lambda: asyncio.create_task(send_daily_notification(bot)))
                 while True:
                     await asyncio.get_running_loop().run_in_executor(None, schedule.run_pending)
-                    await asyncio.sleep(5) #Add a sleep to prevent rate limit issues
+                    await asyncio.sleep(5)  # Add a sleep to prevent rate limit issues
 
             tasks.append(schedule_notifications())
             await asyncio.gather(*tasks, return_exceptions=True)
@@ -1049,6 +1049,7 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
