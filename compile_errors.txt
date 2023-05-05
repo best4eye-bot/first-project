@@ -1,0 +1,562 @@
+(peterpae) ubuntu@upbit-01:~/Auto$ python coin_telegram.py
+DEBUG:asyncio:Using selector: EpollSelector
+DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Bot has started.'}" and files "None"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":532,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683278588,"text":"Bot has started."}}'"
+coin_telegram.py:120: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  await bot.close()
+ERROR:root:Error in sending initial notification: name 'fetch_moving_averages' is not defined
+Traceback (most recent call last):
+  File "coin_telegram.py", line 246, in send_initial_notification
+    moving_averages_future = asyncio.ensure_future(fetch_moving_averages(session))
+NameError: name 'fetch_moving_averages' is not defined
+DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in sending initial notification: name 'fetch_moving_averages' is not defined"}" and files "None"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":533,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683278589,"text":"Error in sending initial notification: name \'fetch_moving_averages\' is not defined"}}'"
+coin_telegram.py:120: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  await bot.close()
+ERROR:asyncio:Task exception was never retrieved
+future: <Task finished name='Task-4' coro=<get_balances() done, defined at coin_telegram.py:124> exception=TypeError('Constructor parameter should be str')>
+Traceback (most recent call last):
+  File "coin_telegram.py", line 127, in get_balances
+    return await fetch(session, url, UPBIT_ACCESS_KEY, UPBIT_SECRET_KEY, json.dumps(query))
+  File "coin_telegram.py", line 95, in fetch
+    async with session.get(url, headers=headers) as response:
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 1141, in __aenter__
+    self._resp = await self._coro
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 423, in _request
+    url = self._build_url(str_or_url)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 357, in _build_url
+    url = URL(str_or_url)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/yarl/_url.py", line 154, in __new__
+    raise TypeError("Constructor parameter should be str")
+TypeError: Constructor parameter should be str
+Candles:     market candle_date_time_utc  ... change_price  change_rate
+0  KRW-BTC  2023-05-05T00:00:00  ...     275000.0     0.007128
+1  KRW-BTC  2023-05-04T00:00:00  ...    -123000.0    -0.003178
+2  KRW-BTC  2023-05-03T00:00:00  ...     298000.0     0.007759
+3  KRW-BTC  2023-05-02T00:00:00  ...     636000.0     0.016839
+4  KRW-BTC  2023-05-01T00:00:00  ...   -1380000.0    -0.035250
+
+[5 rows x 13 columns]
+ERROR:__main__:Error in getting moving average for KRW-BTC: string indices must be integers
+Traceback (most recent call last):
+  File "coin_telegram.py", line 521, in get_moving_average
+    close_prices = [candle['trade_price'] for candle in candles]
+  File "coin_telegram.py", line 521, in <listcomp>
+    close_prices = [candle['trade_price'] for candle in candles]
+TypeError: string indices must be integers
+ERROR:__main__:Error in getting moving average for KRW-BTC: string indices must be integers
+Traceback (most recent call last):
+  File "coin_telegram.py", line 521, in get_moving_average
+    close_prices = [candle['trade_price'] for candle in candles]
+  File "coin_telegram.py", line 521, in <listcomp>
+    close_prices = [candle['trade_price'] for candle in candles]
+TypeError: string indices must be integers
+DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-BTC: string indices must be integers'}" and files "None"
+Candles:     market candle_date_time_utc  ... change_price  change_rate
+0  KRW-ETH  2023-05-05T00:00:00  ...      25000.0     0.009964
+1  KRW-ETH  2023-05-04T00:00:00  ...     -33000.0    -0.012982
+2  KRW-ETH  2023-05-03T00:00:00  ...      38000.0     0.015176
+3  KRW-ETH  2023-05-02T00:00:00  ...      43000.0     0.017473
+4  KRW-ETH  2023-05-01T00:00:00  ...     -45000.0    -0.017957
+
+[5 rows x 13 columns]
+ERROR:__main__:Error in getting moving average for KRW-ETH: string indices must be integers
+Traceback (most recent call last):
+  File "coin_telegram.py", line 521, in get_moving_average
+    close_prices = [candle['trade_price'] for candle in candles]
+  File "coin_telegram.py", line 521, in <listcomp>
+    close_prices = [candle['trade_price'] for candle in candles]
+TypeError: string indices must be integers
+ERROR:__main__:Error in getting moving average for KRW-ETH: string indices must be integers
+Traceback (most recent call last):
+  File "coin_telegram.py", line 521, in get_moving_average
+    close_prices = [candle['trade_price'] for candle in candles]
+  File "coin_telegram.py", line 521, in <listcomp>
+    close_prices = [candle['trade_price'] for candle in candles]
+TypeError: string indices must be integers
+DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-ETH: string indices must be integers'}" and files "None"
+Candles:      market candle_date_time_utc  ... change_price  change_rate
+0  KRW-DOGE  2023-05-05T00:00:00  ...          1.0     0.009615
+1  KRW-DOGE  2023-05-04T00:00:00  ...         -3.0    -0.028037
+2  KRW-DOGE  2023-05-03T00:00:00  ...          1.0     0.009434
+3  KRW-DOGE  2023-05-02T00:00:00  ...          1.0     0.009524
+4  KRW-DOGE  2023-05-01T00:00:00  ...         -1.0    -0.009434
+
+[5 rows x 13 columns]
+ERROR:__main__:Error in getting moving average for KRW-DOGE: string indices must be integers
+Traceback (most recent call last):
+  File "coin_telegram.py", line 521, in get_moving_average
+    close_prices = [candle['trade_price'] for candle in candles]
+  File "coin_telegram.py", line 521, in <listcomp>
+    close_prices = [candle['trade_price'] for candle in candles]
+TypeError: string indices must be integers
+ERROR:__main__:Error in getting moving average for KRW-DOGE: string indices must be integers
+Traceback (most recent call last):
+  File "coin_telegram.py", line 521, in get_moving_average
+    close_prices = [candle['trade_price'] for candle in candles]
+  File "coin_telegram.py", line 521, in <listcomp>
+    close_prices = [candle['trade_price'] for candle in candles]
+TypeError: string indices must be integers
+DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-DOGE: string indices must be integers'}" and files "None"
+DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":534,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683278590,"text":"Error in getting moving average for KRW-DOGE: string indices must be integers"}}'"
+coin_telegram.py:120: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  await bot.close()
+Candles:      market candle_date_time_utc  ... change_price  change_rate
+0  KRW-DOGE  2023-05-05T00:00:00  ...          1.0     0.009615
+1  KRW-DOGE  2023-05-04T00:00:00  ...         -3.0    -0.028037
+2  KRW-DOGE  2023-05-03T00:00:00  ...          1.0     0.009434
+3  KRW-DOGE  2023-05-02T00:00:00  ...          1.0     0.009524
+4  KRW-DOGE  2023-05-01T00:00:00  ...         -1.0    -0.009434
+5  KRW-DOGE  2023-04-30T00:00:00  ...         -2.0    -0.018519
+6  KRW-DOGE  2023-04-29T00:00:00  ...          1.0     0.009346
+7  KRW-DOGE  2023-04-28T00:00:00  ...          1.0     0.009434
+8  KRW-DOGE  2023-04-27T00:00:00  ...          NaN     0.000000
+9  KRW-DOGE  2023-04-26T00:00:00  ...         -1.0    -0.009346
+
+[10 rows x 13 columns]
+ERROR:__main__:Error in getting moving average for KRW-DOGE: string indices must be integers
+Traceback (most recent call last):
+  File "coin_telegram.py", line 521, in get_moving_average
+    close_prices = [candle['trade_price'] for candle in candles]
+  File "coin_telegram.py", line 521, in <listcomp>
+    close_prices = [candle['trade_price'] for candle in candles]
+TypeError: string indices must be integers
+ERROR:__main__:Error in getting moving average for KRW-DOGE: string indices must be integers
+Traceback (most recent call last):
+  File "coin_telegram.py", line 521, in get_moving_average
+    close_prices = [candle['trade_price'] for candle in candles]
+  File "coin_telegram.py", line 521, in <listcomp>
+    close_prices = [candle['trade_price'] for candle in candles]
+TypeError: string indices must be integers
+DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-DOGE: string indices must be integers'}" and files "None"
+coin_telegram.py:120: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  await bot.close()
+ERROR:__main__:Error in getting allocated amount for KRW-ETH: module 'telegram' has no attribute 'error'
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 139, in make_request
+    async with session.post(url, data=req, **kwargs) as response:
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 1141, in __aenter__
+    self._resp = await self._coro
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 560, in _request
+    await resp.start(conn)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client_reqrep.py", line 899, in start
+    message, payload = await protocol.read()  # type: ignore[union-attr]
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/streams.py", line 616, in read
+    await self._waiter
+aiohttp.client_exceptions.ClientOSError: [Errno 1] [SSL: APPLICATION_DATA_AFTER_CLOSE_NOTIFY] application data after close notify (_ssl.c:2747)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 109, in send_telegram_message
+    await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/bot.py", line 346, in send_message
+    result = await self.request(api.Methods.SEND_MESSAGE, payload)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/base.py", line 236, in request
+    return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 142, in make_request
+    raise exceptions.NetworkError(f"aiohttp client throws an error: {e.__class__.__name__}: {e}")
+aiogram.utils.exceptions.NetworkError: Aiohttp client throws an error: ClientOSError: [Errno 1] [SSL: APPLICATION_DATA_AFTER_CLOSE_NOTIFY] application data after close notify (_ssl.c:2747)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 662, in get_allocated_amount
+    ma_5 = await self.get_moving_average(5)
+  File "coin_telegram.py", line 527, in get_moving_average
+    await self.handle_error(e, "getting moving average")
+  File "coin_telegram.py", line 484, in handle_error
+    await send_telegram_message(self.bot, f"Error in {action} for {self.ticker}: {e}")
+  File "coin_telegram.py", line 111, in send_telegram_message
+    except telegram.error.RetryAfter as e:
+AttributeError: module 'telegram' has no attribute 'error'
+DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in getting allocated amount for KRW-ETH: module 'telegram' has no attribute 'error'"}" and files "None"
+coin_telegram.py:120: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  await bot.close()
+ERROR:__main__:Error in getting allocated amount for KRW-BTC: module 'telegram' has no attribute 'error'
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 139, in make_request
+    async with session.post(url, data=req, **kwargs) as response:
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 1141, in __aenter__
+    self._resp = await self._coro
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 560, in _request
+    await resp.start(conn)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client_reqrep.py", line 899, in start
+    message, payload = await protocol.read()  # type: ignore[union-attr]
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/streams.py", line 616, in read
+    await self._waiter
+aiohttp.client_exceptions.ClientOSError: [Errno 1] [SSL: APPLICATION_DATA_AFTER_CLOSE_NOTIFY] application data after close notify (_ssl.c:2747)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 109, in send_telegram_message
+    await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/bot.py", line 346, in send_message
+    result = await self.request(api.Methods.SEND_MESSAGE, payload)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/base.py", line 236, in request
+    return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 142, in make_request
+    raise exceptions.NetworkError(f"aiohttp client throws an error: {e.__class__.__name__}: {e}")
+aiogram.utils.exceptions.NetworkError: Aiohttp client throws an error: ClientOSError: [Errno 1] [SSL: APPLICATION_DATA_AFTER_CLOSE_NOTIFY] application data after close notify (_ssl.c:2747)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 662, in get_allocated_amount
+    ma_5 = await self.get_moving_average(5)
+  File "coin_telegram.py", line 527, in get_moving_average
+    await self.handle_error(e, "getting moving average")
+  File "coin_telegram.py", line 484, in handle_error
+    await send_telegram_message(self.bot, f"Error in {action} for {self.ticker}: {e}")
+  File "coin_telegram.py", line 111, in send_telegram_message
+    except telegram.error.RetryAfter as e:
+AttributeError: module 'telegram' has no attribute 'error'
+DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in getting allocated amount for KRW-BTC: module 'telegram' has no attribute 'error'"}" and files "None"
+coin_telegram.py:120: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  await bot.close()
+ERROR:__main__:Error in getting allocated amount for KRW-DOGE: module 'telegram' has no attribute 'error'
+Traceback (most recent call last):
+  File "coin_telegram.py", line 521, in get_moving_average
+    close_prices = [candle['trade_price'] for candle in candles]
+  File "coin_telegram.py", line 521, in <listcomp>
+    close_prices = [candle['trade_price'] for candle in candles]
+TypeError: string indices must be integers
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 139, in make_request
+    async with session.post(url, data=req, **kwargs) as response:
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 1141, in __aenter__
+    self._resp = await self._coro
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 536, in _request
+    conn = await self._connector.connect(
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/connector.py", line 543, in connect
+    raise ClientConnectionError("Connector is closed.")
+aiohttp.client_exceptions.ClientConnectionError: Connector is closed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 109, in send_telegram_message
+    await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/bot.py", line 346, in send_message
+    result = await self.request(api.Methods.SEND_MESSAGE, payload)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/base.py", line 236, in request
+    return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 142, in make_request
+    raise exceptions.NetworkError(f"aiohttp client throws an error: {e.__class__.__name__}: {e}")
+aiogram.utils.exceptions.NetworkError: Aiohttp client throws an error: ClientConnectionError: Connector is closed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 663, in get_allocated_amount
+    ma_10 = await self.get_moving_average(10)
+  File "coin_telegram.py", line 527, in get_moving_average
+    await self.handle_error(e, "getting moving average")
+  File "coin_telegram.py", line 484, in handle_error
+    await send_telegram_message(self.bot, f"Error in {action} for {self.ticker}: {e}")
+  File "coin_telegram.py", line 111, in send_telegram_message
+    except telegram.error.RetryAfter as e:
+AttributeError: module 'telegram' has no attribute 'error'
+DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in getting allocated amount for KRW-DOGE: module 'telegram' has no attribute 'error'"}" and files "None"
+coin_telegram.py:120: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  await bot.close()
+ERROR:__main__:Error in getting position size for KRW-ETH: module 'telegram' has no attribute 'error'
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 139, in make_request
+    async with session.post(url, data=req, **kwargs) as response:
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 1141, in __aenter__
+    self._resp = await self._coro
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 560, in _request
+    await resp.start(conn)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client_reqrep.py", line 899, in start
+    message, payload = await protocol.read()  # type: ignore[union-attr]
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/streams.py", line 616, in read
+    await self._waiter
+aiohttp.client_exceptions.ClientOSError: [Errno 1] [SSL: APPLICATION_DATA_AFTER_CLOSE_NOTIFY] application data after close notify (_ssl.c:2747)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 109, in send_telegram_message
+    await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/bot.py", line 346, in send_message
+    result = await self.request(api.Methods.SEND_MESSAGE, payload)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/base.py", line 236, in request
+    return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 142, in make_request
+    raise exceptions.NetworkError(f"aiohttp client throws an error: {e.__class__.__name__}: {e}")
+aiogram.utils.exceptions.NetworkError: Aiohttp client throws an error: ClientOSError: [Errno 1] [SSL: APPLICATION_DATA_AFTER_CLOSE_NOTIFY] application data after close notify (_ssl.c:2747)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 662, in get_allocated_amount
+    ma_5 = await self.get_moving_average(5)
+  File "coin_telegram.py", line 527, in get_moving_average
+    await self.handle_error(e, "getting moving average")
+  File "coin_telegram.py", line 484, in handle_error
+    await send_telegram_message(self.bot, f"Error in {action} for {self.ticker}: {e}")
+  File "coin_telegram.py", line 111, in send_telegram_message
+    except telegram.error.RetryAfter as e:
+AttributeError: module 'telegram' has no attribute 'error'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 139, in make_request
+    async with session.post(url, data=req, **kwargs) as response:
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 1141, in __aenter__
+    self._resp = await self._coro
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 536, in _request
+    conn = await self._connector.connect(
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/connector.py", line 543, in connect
+    raise ClientConnectionError("Connector is closed.")
+aiohttp.client_exceptions.ClientConnectionError: Connector is closed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 109, in send_telegram_message
+    await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/bot.py", line 346, in send_message
+    result = await self.request(api.Methods.SEND_MESSAGE, payload)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/base.py", line 236, in request
+    return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 142, in make_request
+    raise exceptions.NetworkError(f"aiohttp client throws an error: {e.__class__.__name__}: {e}")
+aiogram.utils.exceptions.NetworkError: Aiohttp client throws an error: ClientConnectionError: Connector is closed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 496, in get_position_size
+    allocated_amount = await self.get_allocated_amount(current_price)
+  File "coin_telegram.py", line 683, in get_allocated_amount
+    await self.handle_error(e, "getting allocated amount")
+  File "coin_telegram.py", line 484, in handle_error
+    await send_telegram_message(self.bot, f"Error in {action} for {self.ticker}: {e}")
+  File "coin_telegram.py", line 111, in send_telegram_message
+    except telegram.error.RetryAfter as e:
+AttributeError: module 'telegram' has no attribute 'error'
+DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in getting position size for KRW-ETH: module 'telegram' has no attribute 'error'"}" and files "None"
+coin_telegram.py:120: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  await bot.close()
+ERROR:__main__:Error in getting position size for KRW-BTC: module 'telegram' has no attribute 'error'
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 139, in make_request
+    async with session.post(url, data=req, **kwargs) as response:
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 1141, in __aenter__
+    self._resp = await self._coro
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 560, in _request
+    await resp.start(conn)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client_reqrep.py", line 899, in start
+    message, payload = await protocol.read()  # type: ignore[union-attr]
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/streams.py", line 616, in read
+    await self._waiter
+aiohttp.client_exceptions.ClientOSError: [Errno 1] [SSL: APPLICATION_DATA_AFTER_CLOSE_NOTIFY] application data after close notify (_ssl.c:2747)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 109, in send_telegram_message
+    await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/bot.py", line 346, in send_message
+    result = await self.request(api.Methods.SEND_MESSAGE, payload)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/base.py", line 236, in request
+    return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 142, in make_request
+    raise exceptions.NetworkError(f"aiohttp client throws an error: {e.__class__.__name__}: {e}")
+aiogram.utils.exceptions.NetworkError: Aiohttp client throws an error: ClientOSError: [Errno 1] [SSL: APPLICATION_DATA_AFTER_CLOSE_NOTIFY] application data after close notify (_ssl.c:2747)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 662, in get_allocated_amount
+    ma_5 = await self.get_moving_average(5)
+  File "coin_telegram.py", line 527, in get_moving_average
+    await self.handle_error(e, "getting moving average")
+  File "coin_telegram.py", line 484, in handle_error
+    await send_telegram_message(self.bot, f"Error in {action} for {self.ticker}: {e}")
+  File "coin_telegram.py", line 111, in send_telegram_message
+    except telegram.error.RetryAfter as e:
+AttributeError: module 'telegram' has no attribute 'error'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 139, in make_request
+    async with session.post(url, data=req, **kwargs) as response:
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 1141, in __aenter__
+    self._resp = await self._coro
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 536, in _request
+    conn = await self._connector.connect(
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/connector.py", line 543, in connect
+    raise ClientConnectionError("Connector is closed.")
+aiohttp.client_exceptions.ClientConnectionError: Connector is closed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 109, in send_telegram_message
+    await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/bot.py", line 346, in send_message
+    result = await self.request(api.Methods.SEND_MESSAGE, payload)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/base.py", line 236, in request
+    return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 142, in make_request
+    raise exceptions.NetworkError(f"aiohttp client throws an error: {e.__class__.__name__}: {e}")
+aiogram.utils.exceptions.NetworkError: Aiohttp client throws an error: ClientConnectionError: Connector is closed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 496, in get_position_size
+    allocated_amount = await self.get_allocated_amount(current_price)
+  File "coin_telegram.py", line 683, in get_allocated_amount
+    await self.handle_error(e, "getting allocated amount")
+  File "coin_telegram.py", line 484, in handle_error
+    await send_telegram_message(self.bot, f"Error in {action} for {self.ticker}: {e}")
+  File "coin_telegram.py", line 111, in send_telegram_message
+    except telegram.error.RetryAfter as e:
+AttributeError: module 'telegram' has no attribute 'error'
+DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in getting position size for KRW-BTC: module 'telegram' has no attribute 'error'"}" and files "None"
+coin_telegram.py:120: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  await bot.close()
+ERROR:__main__:Error in getting position size for KRW-DOGE: module 'telegram' has no attribute 'error'
+Traceback (most recent call last):
+  File "coin_telegram.py", line 521, in get_moving_average
+    close_prices = [candle['trade_price'] for candle in candles]
+  File "coin_telegram.py", line 521, in <listcomp>
+    close_prices = [candle['trade_price'] for candle in candles]
+TypeError: string indices must be integers
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 139, in make_request
+    async with session.post(url, data=req, **kwargs) as response:
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 1141, in __aenter__
+    self._resp = await self._coro
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 536, in _request
+    conn = await self._connector.connect(
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/connector.py", line 543, in connect
+    raise ClientConnectionError("Connector is closed.")
+aiohttp.client_exceptions.ClientConnectionError: Connector is closed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 109, in send_telegram_message
+    await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/bot.py", line 346, in send_message
+    result = await self.request(api.Methods.SEND_MESSAGE, payload)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/base.py", line 236, in request
+    return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 142, in make_request
+    raise exceptions.NetworkError(f"aiohttp client throws an error: {e.__class__.__name__}: {e}")
+aiogram.utils.exceptions.NetworkError: Aiohttp client throws an error: ClientConnectionError: Connector is closed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 663, in get_allocated_amount
+    ma_10 = await self.get_moving_average(10)
+  File "coin_telegram.py", line 527, in get_moving_average
+    await self.handle_error(e, "getting moving average")
+  File "coin_telegram.py", line 484, in handle_error
+    await send_telegram_message(self.bot, f"Error in {action} for {self.ticker}: {e}")
+  File "coin_telegram.py", line 111, in send_telegram_message
+    except telegram.error.RetryAfter as e:
+AttributeError: module 'telegram' has no attribute 'error'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 139, in make_request
+    async with session.post(url, data=req, **kwargs) as response:
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 1141, in __aenter__
+    self._resp = await self._coro
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/client.py", line 536, in _request
+    conn = await self._connector.connect(
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiohttp/connector.py", line 543, in connect
+    raise ClientConnectionError("Connector is closed.")
+aiohttp.client_exceptions.ClientConnectionError: Connector is closed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 109, in send_telegram_message
+    await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/bot.py", line 346, in send_message
+    result = await self.request(api.Methods.SEND_MESSAGE, payload)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/base.py", line 236, in request
+    return await api.make_request(await self.get_session(), self.server, self.__token, method, data, files,
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/site-packages/aiogram/bot/api.py", line 142, in make_request
+    raise exceptions.NetworkError(f"aiohttp client throws an error: {e.__class__.__name__}: {e}")
+aiogram.utils.exceptions.NetworkError: Aiohttp client throws an error: ClientConnectionError: Connector is closed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "coin_telegram.py", line 496, in get_position_size
+    allocated_amount = await self.get_allocated_amount(current_price)
+  File "coin_telegram.py", line 683, in get_allocated_amount
+    await self.handle_error(e, "getting allocated amount")
+  File "coin_telegram.py", line 484, in handle_error
+    await send_telegram_message(self.bot, f"Error in {action} for {self.ticker}: {e}")
+  File "coin_telegram.py", line 111, in send_telegram_message
+    except telegram.error.RetryAfter as e:
+AttributeError: module 'telegram' has no attribute 'error'
+DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in getting position size for KRW-DOGE: module 'telegram' has no attribute 'error'"}" and files "None"
+coin_telegram.py:120: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  await bot.close()
+ERROR:__main__:Error creating trading bot for KRW-ETH: module 'telegram' has no attribute 'error'
+ERROR:__main__:Error creating trading bot for KRW-ETH
+coin_telegram.py:120: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  await bot.close()
+ERROR:__main__:Error creating trading bot for KRW-BTC: module 'telegram' has no attribute 'error'
+ERROR:__main__:Error creating trading bot for KRW-BTC
+coin_telegram.py:120: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  await bot.close()
+ERROR:__main__:Error creating trading bot for KRW-DOGE: module 'telegram' has no attribute 'error'
+ERROR:__main__:Error creating trading bot for KRW-DOGE
+ERROR:__main__:An error occurred in main(): name 'bot_instances' is not defined
+Traceback (most recent call last):
+  File "coin_telegram.py", line 1029, in main
+    tasks.append(await run_strategy_for_all_bots(bot_instances))
+NameError: name 'bot_instances' is not defined
+Traceback (most recent call last):
+  File "coin_telegram.py", line 1051, in <module>
+    asyncio.run(main())
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/base_events.py", line 616, in run_until_complete
+    return future.result()
+  File "coin_telegram.py", line 1046, in main
+    await cleanup(bot_instances)
+NameError: name 'cleanup' is not defined
+Exception ignored in: <function _SelectorTransport.__del__ at 0x7fdaaddd04c0>
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/selector_events.py", line 696, in __del__
+    _warn(f"unclosed transport {self!r}", ResourceWarning, source=self)
+TypeError: issubclass() arg 2 must be a class or tuple of classes
+Exception ignored in: <function _SelectorTransport.__del__ at 0x7fdaaddd04c0>
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/selector_events.py", line 696, in __del__
+    _warn(f"unclosed transport {self!r}", ResourceWarning, source=self)
+TypeError: issubclass() arg 2 must be a class or tuple of classes
+Exception ignored in: <function _SelectorTransport.__del__ at 0x7fdaaddd04c0>
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/selector_events.py", line 696, in __del__
+    _warn(f"unclosed transport {self!r}", ResourceWarning, source=self)
+TypeError: issubclass() arg 2 must be a class or tuple of classes
+Exception ignored in: <function _SelectorTransport.__del__ at 0x7fdaaddd04c0>
+Traceback (most recent call last):
+  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/selector_events.py", line 696, in __del__
+    _warn(f"unclosed transport {self!r}", ResourceWarning, source=self)
+TypeError: issubclass() arg 2 must be a class or tuple of classes
+(peterpae) ubuntu@upbit-01:~/Auto$
