@@ -23,15 +23,27 @@ import configparser
 import hmac
 import logging
 import warnings
+
 from aiogram.utils.deprecated import deprecated
+from aiogram import Bot, Dispatcher, types
+from aiogram.contrib.middlewares.logging import LoggingMiddleware
+from aiogram.types import ParseMode
+
+from coinmarketcap import CoinMarketCap
 from throttler import Throttler
+
 warnings.simplefilter("ignore", deprecated)
 logging.basicConfig(level=logging.DEBUG)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)  # You can adjust the log level as needed
+
 
 # Read the API keys and chat ID from the config file
 def read_config():
     config = configparser.ConfigParser()
     config.read('config.ini')
+    logger.debug("Configuration file read successfully.")
     return config.get('UPBIT', 'ACCESS_KEY'), config.get('UPBIT', 'SECRET_KEY'), config.get('TELEGRAM', 'BOT_TOKEN'), config.get('TELEGRAM', 'CHAT_ID')
 
 UPBIT_ACCESS_KEY, UPBIT_SECRET_KEY, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID = read_config()
@@ -43,20 +55,18 @@ TAKER_FEE = 0.0005
 SLIPPAGE = 0.01
 
 # Set up logger for errors
-error_logger = logging.getLogger("errors")
-error_logger.setLevel(logging.ERROR)
 error_handler = logging.FileHandler("error.log")
 error_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 error_handler.setFormatter(error_formatter)
-error_logger.addHandler(error_handler)
+error_handler.setLevel(logging.ERROR)
+logger.addHandler(error_handler)
 
 # Set up logger for debugs
-debug_logger = logging.getLogger("debugs")
-debug_logger.setLevel(logging.DEBUG)
 debug_handler = logging.FileHandler("debug.log")
 debug_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 debug_handler.setFormatter(debug_formatter)
-debug_logger.addHandler(debug_handler)
+debug_handler.setLevel(logging.DEBUG)
+logger.addHandler(debug_handler)
 
 
 # Function to create JWT token
