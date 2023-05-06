@@ -757,8 +757,8 @@ class TradingBot:
     async def run_strategy_for_all_bots(bot_instances):
         while True:
             tasks = [bot.strategy() for bot in bot_instances]
-            await asyncio.gather(*tasks)
-            await asyncio.sleep(60)  # Run the strategy every 60 seconds, adjust the interval as needed
+            await asyncio.gather(*tasks, return_exceptions=True)
+            await asyncio.sleep(60) #with the desired interval (in seconds) between running the strategy for all bots.
 
 
     async def get_buy_signals(self):
