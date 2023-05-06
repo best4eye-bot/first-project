@@ -28,8 +28,6 @@ from aiogram.utils.deprecated import deprecated
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.types import ParseMode
-
-from coinmarketcap import CoinMarketCap
 from throttler import Throttler
 
 warnings.simplefilter("ignore", deprecated)
@@ -253,24 +251,29 @@ async def get_krw_balance(balances):
 
 
 # Telegram initial notification message
-async def send_initial_notification(bot, session):
+async def send_initial_notification(bot, session, bot_instances):
     try:
         # Send a message to inform that the bot has started
         await send_telegram_message(bot, "Bot has started.")
         
-        # Schedule the execution of get_balances, fetch_moving_averages, and get_orders coroutines using ensure_future
+        # Schedule the execution of get_balances and get_orders coroutines using ensure_future
         balances_future = asyncio.ensure_future(get_balances(session))
-        moving_averages_future = asyncio.ensure_future(fetch_moving_averages(session))
         orders_future = asyncio.ensure_future(get_orders(session))
 
-        # Wait for all the scheduled coroutines to complete using asyncio.gather
-        balances, moving_averages, orders = await asyncio.gather(
-            balances_future, moving_averages_future, orders_future
-        )
+        # Get moving averages for all trading pairs
+        moving_averages = []
+        for bot_instance in bot_instances:
+            short_ma, long_ma = bot_instance.get_ma()
+            moving_averages.append((bot_instance.ticker, short_ma, long_ma))
 
-        # Format the balances, moving averages, and orders information
+        # Format the moving averages
+        formatted_moving_averages = "\n".join([f"{ticker}: {short_ma:.2f} (short), {long_ma:.2f} (long)" for ticker, short_ma, long_ma in moving_averages])
+
+        # Wait for the scheduled get_balances and get_orders coroutines to complete using asyncio.gather
+        balances, orders = await asyncio.gather(balances_future, orders_future)
+
+        # Format the balances and orders information
         formatted_balances = format_balances(balances)
-        formatted_moving_averages = format_moving_averages(moving_averages)
         formatted_orders = format_orders(orders)
 
         # Send the formatted information as a message
@@ -281,6 +284,7 @@ async def send_initial_notification(bot, session):
     except Exception as e:
         error_logger.exception(f"Error in sending initial notification: {e}")
         await send_telegram_message(bot, f"Error in sending initial notification: {e}")
+
 
 
 # Telegram daily notification message
@@ -749,6 +753,14 @@ class TradingBot:
             await send_telegram_message(self.bot, f"Error in executing strategy for {self.ticker}: {e}")
 
 
+    # run strategy function for all bot
+    async def run_strategy_for_all_bots(bot_instances):
+        while True:
+            tasks = [bot.strategy() for bot in bot_instances]
+            await asyncio.gather(*tasks)
+            await asyncio.sleep(60)  # Run the strategy every 60 seconds, adjust the interval as needed
+
+
     async def get_buy_signals(self):
         ma_5 = await self.get_moving_average(5)
         ma_10 = await self.get_moving_average(10)
@@ -1016,14 +1028,20 @@ class TradingBot:
             await send_telegram_message(self.bot, f"Error executing sell all for {self.ticker}: {e}")
 
 
+#Clean up Bot functions
+async def cleanup(bot_instances):
+    for bot_instance in bot_instances:
+        await bot_instance.close()
+
 
 #The main function sets up and manages the trading bot, initializing all required components, 
 # fetching required data, and managing the execution of the various tasks. 
 # It also handles scheduling and sending notifications via Telegram.
 async def main():
     try:
-        # Initialize the bot with the token
+        # Initialize bot and dispatcher
         bot = Bot(token=TELEGRAM_BOT_TOKEN)
+        dp = Dispatcher(bot)
 
         # Define the tickers for the trading pairs
         tickers = ["KRW-BTC", "KRW-ETH", "KRW-DOGE"]
@@ -1031,12 +1049,11 @@ async def main():
         # Create an aiohttp ClientSession
         async with aiohttp.ClientSession() as session:
 
+            # Initialize trading bots for each trading pair
+            bot_instances = [await TradingBot.create(session, ticker, bot) for ticker in tickers]
+
             # Send an initial notification to the Telegram group
             await send_initial_notification(bot, session)
-
-            # Initialize trading bots for each trading pair
-            trading_pairs = ["KRW-BTC", "KRW-ETH", "KRW-DOGE"]
-            bot_instances = [await TradingBot.create(session, ticker, bot) for ticker in tickers]
 
             # Create a list of tasks to be run concurrently
             tasks = []
@@ -1057,10 +1074,6 @@ async def main():
             # Gather all tasks and run them concurrently
             await asyncio.gather(*tasks, return_exceptions=True)
 
-            # Process orders and send the updated balance
-            orders = [("BTC-KRW", 0.01), ("ETH-KRW", 0.1), ("DOGE-KRW", 100)]
-            await process_orders_and_send_balance(session, orders)
-
     except Exception as e:
         error_logger.exception("An error occurred in main(): %s", e)
 
@@ -1073,6 +1086,7 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
