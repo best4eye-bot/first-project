@@ -42,13 +42,21 @@ MAKER_FEE = 0.0005
 TAKER_FEE = 0.0005
 SLIPPAGE = 0.01
 
-# Set up logger for error control at the top of script or inside class
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.ERROR)  # or whichever level you prefer
-handler = logging.FileHandler('bot.log')  # or any other handler
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+# Set up logger for errors
+error_logger = logging.getLogger("errors")
+error_logger.setLevel(logging.ERROR)
+error_handler = logging.FileHandler("error.log")
+error_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+error_handler.setFormatter(error_formatter)
+error_logger.addHandler(error_handler)
+
+# Set up logger for debugs
+debug_logger = logging.getLogger("debugs")
+debug_logger.setLevel(logging.DEBUG)
+debug_handler = logging.FileHandler("debug.log")
+debug_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+debug_handler.setFormatter(debug_formatter)
+debug_logger.addHandler(debug_handler)
 
 
 # Function to create JWT token
@@ -93,10 +101,10 @@ async def fetch(url, access_key, secret_key, query, is_order_request=False):
 
     async with throttler_to_use, throttler_minute_to_use:  # apply throttling
         async with aiohttp.ClientSession() as session:
-            async with session.get_json(url, headers=headers) as response:
+            async with session.get(url, headers=headers) as response:
                 # Handle 429 status code
                 if response.status == 429:
-                    logger.warning("API rate limit reached, sleeping for 1 second")
+                    debug_logger.warning("API rate limit reached, sleeping for 1 second")
                     await asyncio.sleep(1)
                     return await fetch(url, access_key, secret_key, query, is_order_request)
 
@@ -110,12 +118,12 @@ async def send_telegram_message(bot, message):
         await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
 
     except telegram.error.RetryAfter as e:
-        logger.error(f"Telegram API rate limit exceeded. Retrying in {e.retry_after} seconds.")
+        error_logger.error(f"Telegram API rate limit exceeded. Retrying in {e.retry_after} seconds.")
         await asyncio.sleep(e.retry_after)
         await send_telegram_message(bot, message)
 
     except Exception as e:
-        logger.error(f"Error sending message: {e}")
+        error_logger.error(f"Error sending message: {e}")
 
     finally:
         await bot.close()
@@ -128,11 +136,12 @@ async def get_balances(session):
     return await fetch(session, url, UPBIT_ACCESS_KEY, UPBIT_SECRET_KEY, json.dumps(query))
 
 
+
 # Get the total KRW balance of each asset
 async def get_balance(session):
     balances = await get_balances(session)
     if not balances:
-        logger.error("Error fetching balances.")
+        error_logger.error("Error fetching balances.")
         return None
 
     total_krw_balance = 0
@@ -140,7 +149,7 @@ async def get_balance(session):
     for balance in balances:
         currency = balance.get('currency')
         if not currency:
-            logger.error("Unexpected balance format.")
+            error_logger.error("Unexpected balance format.")
             continue
 
         if currency == 'KRW':
@@ -151,7 +160,7 @@ async def get_balance(session):
             if current_price:
                 total_krw_balance += float(balance.get('balance', 0)) * current_price
             else:
-                logger.error(f"Error fetching {ticker} current price.")
+                error_logger.error(f"Error fetching {ticker} current price.")
 
     return total_krw_balance
 
@@ -161,7 +170,7 @@ async def get_current_price(session, ticker):
     async with session.get(f"https://api.upbit.com/v1/ticker?markets={ticker}", headers=headers) as response:
         data = await response.json()
         if 'error' in data:
-            logger.error(f"Error fetching {ticker} current price: {data['error']}")
+            error_logger.error(f"Error fetching {ticker} current price: {data['error']}")
             return None
         return data[0]['trade_price'] if data else None
 
@@ -178,7 +187,7 @@ async def get_trading_pair_price(session, pair):
     async with session.get(f"https://api.upbit.com/v1/ticker?markets={pair}", headers=headers) as response:
         data = await response.json()
         if 'error' in data:
-            logger.error(f"Error fetching {pair} data: {data['error']}")
+            error_logger.error(f"Error fetching {pair} data: {data['error']}")
             return None
         return data[0]['trade_price'] if data else None
 
@@ -189,17 +198,15 @@ async def fetch_trading_pair_prices(session, trading_pairs):
     prices = await asyncio.gather(*tasks)
     trading_pair_prices = dict(zip(trading_pairs, prices))
 
-    # If the dictionary is empty, log an error
     if not trading_pair_prices:
-        logger.error("No trading pair prices were fetched successfully.")
+        error_logger.error("No trading pair prices were fetched successfully.")
     else:
-        # Log an info message for each trading pair       
         for pair, price in trading_pair_prices.items():
             if price is None:
-                logger.error(f"Failed to fetch price for {pair}")
+                error_logger.error(f"Failed to fetch price for {pair}")
             else:
-                logger.info(f"{pair}: {price}")
-    
+                debug_logger.info(f"{pair}: {price}")
+
     return trading_pair_prices
 
 
@@ -213,13 +220,12 @@ async def buy_market_order(session, ticker, volume):
         "ord_type": "market",
     }
 
-    # Use the fetch() function instead of repeating the request process
     response_data = await fetch(url, UPBIT_ACCESS_KEY, UPBIT_SECRET_KEY, json.dumps(query))
 
     if 'uuid' in response_data:
-        logger.info(f"Successfully placed buy market order for {ticker} with volume {volume}")
+        debug_logger.info(f"Successfully placed buy market order for {ticker} with volume {volume}")
     else:
-        logger.error(f"Error placing buy market order for {ticker}: {response_data}")
+        error_logger.error(f"Error placing buy market order for {ticker}: {response_data}")
 
 
 # Buy order async function
@@ -263,7 +269,7 @@ async def send_initial_notification(bot, session):
         await send_telegram_message(bot, f"Current orders:\n{formatted_orders}")
 
     except Exception as e:
-        logging.exception(f"Error in sending initial notification: {e}")
+        error_logger.exception(f"Error in sending initial notification: {e}")
         await send_telegram_message(bot, f"Error in sending initial notification: {e}")
 
 
@@ -273,7 +279,7 @@ async def send_daily_notification(bot, session):
         balances = await get_balances(session)
 
         if balances is None:
-            logger.error("Error fetching balances")
+            error_logger.error("Error fetching balances")
             await send_telegram_message(bot, "Error fetching balances")
             return
 
@@ -287,7 +293,7 @@ async def send_daily_notification(bot, session):
         await send_telegram_message(bot, balance_message)
 
     except Exception as e:
-        logger.exception(f"Error in sending daily notification: {e}")
+        error_logger.exception(f"Error in sending daily notification: {e}")
         await send_telegram_message(bot, f"Error in sending daily notification: {e}")
 
 
@@ -296,11 +302,11 @@ async def create_trading_bot(session, pair, bot):
     try:
         bot_instance = await TradingBot.create(session, pair, bot)
         if bot_instance is None:
-            logger.error(f"Error creating trading bot for {pair}")
+            error_logger.error(f"Error creating trading bot for {pair}")
             return None
         return bot_instance
     except Exception as e:
-        logger.exception(f"Error creating trading bot for {pair}: {e}")
+        error_logger.exception(f"Error creating trading bot for {pair}: {e}")
         await send_telegram_message(bot, f"Error creating trading bot for {pair}: {e}")
         return None
 
@@ -363,7 +369,7 @@ class TradingBot:
             await bot_instance.fetch_balances()  # Fetch balances when creating a new instance
             return bot_instance
         except Exception as e:
-            logger.error(f"Error creating trading bot for {ticker}: {e}")
+            error_logger.error(f"Error creating trading bot for {ticker}: {e}")
             return None
 
     # Session closer
@@ -371,7 +377,7 @@ class TradingBot:
         try:
             await self.session.close()
         except Exception as e:
-            logger.error(f"Error closing session for {self.ticker}: {e}")
+            error_logger.error(f"Error closing session for {self.ticker}: {e}")
 
     # Authentication on Upbit API header function 
     def get_authentication_headers(self, query):
@@ -400,12 +406,12 @@ class TradingBot:
             async with self.session.get(url, headers=headers) as response:
                 data = await response.json()
                 if 'error' in data:
-                    logger.error(f"Error fetching balances for {self.ticker}: {data['error']}")
+                    error_logger.error(f"Error fetching balances for {self.ticker}: {data['error']}")
                     self.balances = None
                 else:
                     self.balances = {item['currency']: float(item["balance"]) for item in data}
         except Exception as e:
-            logger.error(f"Error fetching balances for {self.ticker}: {e}")
+            error_logger.error(f"Error fetching balances for {self.ticker}: {e}")
             self.balances = None
 
 
@@ -419,23 +425,25 @@ class TradingBot:
 
             balance = self.balances.get(currency)
             if balance is None:
-                logger.error(f"No balance found for currency: {currency}")
+                error_logger.error(f"No balance found for currency: {currency}")
             return balance
         except Exception as e:
-            logger.error(f"Error getting account balance for {currency}: {e}")
+            error_logger.error(f"Error getting account balance for {currency}: {e}")
             return 0.0
+    
 
     async def get_volume(self, current_price, allocated_amount):
         try:
             if allocated_amount is None:
-                logger.error(f"Error fetching allocated amount for {self.ticker}")
+                error_logger.error(f"Error fetching allocated amount for {self.ticker}")
                 return None
 
             volume = allocated_amount / current_price
             return volume
         except Exception as e:
-            logger.error(f"Error getting volume for {self.ticker}: {e}")
+            error_logger.error(f"Error getting volume for {self.ticker}: {e}")
             return None
+
 
     async def get_current_price(self, ticker):
         url = f"https://api.upbit.com/v1/ticker"
@@ -449,8 +457,9 @@ class TradingBot:
                     raise CurrentPriceFetchError(f"Error fetching {ticker} current price: {data['error']}")
                 return data[0]['trade_price']
         except Exception as e:
-            logger.error(f"Error fetching current price for {ticker}: {e}")
+            error_logger.error(f"Error fetching current price for {ticker}: {e}")
             return None
+
 
     async def async_sell_market_order(self, ticker, volume):
         url = "https://api.upbit.com/v1/orders"
@@ -469,20 +478,20 @@ class TradingBot:
                 if response.status == 201:
                     logger.info(f"Successfully placed sell market order for {ticker} with volume {volume}")
                 else:
-                    logger.error(f"Error placing sell market order for {ticker}: {response_data}")
+                    error_logger.error(f"Error placing sell market order for {ticker}: {response_data}")
                     if 'error' in response_data and 'rate limit' in response_data['error']:
                         logger.warning("Rate limit exceeded. Sleeping for 60 seconds.")
                         await asyncio.sleep(60)
         except Exception as e:
-            logger.error(f"Error placing sell market order for {ticker}: {e}")
+            error_logger.error(f"Error placing sell market order for {ticker}: {e}")
             await asyncio.sleep(1)
-
 
 
     # error handling for excess API call
     async def handle_error(self, e, action):
-        logger.error(f"Error in {action} for {self.ticker}: {e}", exc_info=True)
+        error_logger.error(f"Error in {action} for {self.ticker}: {e}", exc_info=True)
         await send_telegram_message(self.bot, f"Error in {action} for {self.ticker}: {e}")
+
 
 
     #사용가능한 KRW잔고기반 position size계산 및 trade risk and fee정산후 정수화
@@ -491,7 +500,7 @@ class TradingBot:
             current_price = await self.get_current_price(self.ticker)
 
             if current_price is None:
-                logger.error(f"Error fetching current price for {self.ticker}")
+                error_logger.error(f"Error fetching current price for {self.ticker}")
                 return None
 
             allocated_amount = await self.get_allocated_amount(current_price)
@@ -505,7 +514,7 @@ class TradingBot:
             return int(volume)
 
         except Exception as e:
-            logger.error(f"Error in getting position size for {self.ticker}: {e}", exc_info=True)
+            error_logger.error(f"Error in getting position size for {self.ticker}: {e}", exc_info=True)
             await send_telegram_message(self.bot, f"Error in getting position size for {self.ticker}: {e}")
 
 
@@ -517,7 +526,7 @@ class TradingBot:
                 await self.handle_error("Error fetching data for moving average calculation", "getting moving average")
                 return None
             
-            print("Candles:", candles)  # Add this line to print the candles data
+            debug_logger.debug("Candles: %s", candles)  # Add this line to print the candles data
 
             close_prices = [candle['trade_price'] for candle in candles]
             close_prices_series = pd.Series(close_prices)
@@ -527,7 +536,6 @@ class TradingBot:
             logger.error(f"Error in getting moving average for {self.ticker}: {e}", exc_info=True)
             await self.handle_error(e, "getting moving average")
             return None
-
 
 
     # Get ohlcv, using sigle session for multiple requests not everytime multi sessions
@@ -567,7 +575,6 @@ class TradingBot:
         return await self.get_async_ohlcv(ticker, intervals.get(interval, '60'), count)
 
 
-
     # Asynchronous call for get_orderbook() functions
     async def get_async_orderbook(self, ticker):
         url = "https://api.upbit.com/v1/orderbook"
@@ -583,10 +590,10 @@ class TradingBot:
                 await asyncio.sleep(int(e.headers.get('Retry-After', 60)))
                 return await self.get_async_orderbook(ticker)
             else:
-                logger.error(f"Error fetching {ticker} orderbook data: {e}", exc_info=True)
+                error_logger.error(f"Error fetching {ticker} orderbook data: {e}", exc_info=True)
                 return None
         except Exception as e:
-            logger.error(f"Error fetching {ticker} orderbook data: {e}", exc_info=True)
+            error_logger.error(f"Error fetching {ticker} orderbook data: {e}", exc_info=True)
             return None
 
 
@@ -596,15 +603,19 @@ class TradingBot:
             candles_df = await self.get_ohlcv(self.ticker, interval='day', count=20)
 
             if candles_df is None:
-                logger.error(f"Error fetching {self.ticker} data for moving averages calculation")
+                error_logger.error(f"Error fetching {self.ticker} data for moving averages calculation")
                 return None
 
             close = candles_df['trade_price']
             self.ma_5 = close.rolling(window=5).mean().values[-1]
             self.ma_10 = close.rolling(window=10).mean().values[-1]
             self.ma_20 = close.rolling(window=20).mean().values[-1]
+
+            # Debug log for moving averages
+            debug_logger.debug(f"Moving averages for {self.ticker}: MA5={self.ma_5}, MA10={self.ma_10}, MA20={self.ma_20}")
+
         except Exception as e:
-            logger.error(f"Error in getting moving averages for {self.ticker}: {e}", exc_info=True)
+            error_logger.error(f"Error in getting moving averages for {self.ticker}: {e}", exc_info=True)
             await send_telegram_message(self.bot, f"Error in getting moving averages for {self.ticker}: {e}")
 
 
@@ -627,7 +638,7 @@ class TradingBot:
             current_price = await self.get_current_price(self.ticker)
 
             if current_price is None:
-                logger.error(f"Error fetching current price for {self.ticker}")
+                error_logger.error(f"Error fetching current price for {self.ticker}")
                 return None
 
             if self.position_size > 0:
@@ -649,7 +660,7 @@ class TradingBot:
             return stop_loss_price
 
         except Exception as e:
-            logger.error(f"Error in calculating stop loss price for {self.ticker}: {e}", exc_info=True)
+            error_logger.error(f"Error in calculating stop loss price for {self.ticker}: {e}", exc_info=True)
             await send_telegram_message(self.bot, f"Error in calculating stop loss for {self.ticker}: {e}")
             return None
 
@@ -664,7 +675,7 @@ class TradingBot:
             ma_10 = await self.get_moving_average(10)
 
             if ma_5 is None or ma_10 is None:
-                logger.error(f"Error fetching moving averages for {self.ticker}")
+                error_logger.error(f"Error fetching moving averages for {self.ticker}")
                 return None
 
             # Initialize allocated amount to 0
@@ -681,6 +692,7 @@ class TradingBot:
 
             return allocated_amount
         except Exception as e:
+            error_logger.error(f"Error in getting allocated amount for {self.ticker}: {e}", exc_info=True)
             await self.handle_error(e, "getting allocated amount")
             return None
 
@@ -695,43 +707,36 @@ class TradingBot:
 
     # Strategy of market analysis for trading
     async def strategy(self):
-        await self.get_rsi()
-        await self.get_macd()
-        await self.get_bollinger_band()
-        await self.get_moving_averages()
+        try:
+            await self.get_rsi()
+            await self.get_macd()
+            await self.get_bollinger_band()
+            await self.get_moving_averages()
 
-        # Buy signal: RSI < 30, MACD histogram > 0, and price > lower Bollinger Band
-        if self.rsi < 30 and self.macd_histogram > 0 and self.current_price > self.lower_band:
-            self.buy_signal = True
-        else:
-            self.buy_signal = False
+            # Buy signal: RSI < 30, MACD histogram > 0, and price > lower Bollinger Band
+            if self.rsi < 30 and self.macd_histogram > 0 and self.current_price > self.lower_band:
+                self.buy_signal = True
+            else:
+                self.buy_signal = False
 
-        # Sell signal: RSI > 70, MACD histogram < 0, and price < upper Bollinger Band
-        if self.rsi > 70 and self.macd_histogram < 0 and self.current_price < self.upper_band:
-            self.sell_signal = True
-        else:
-            self.sell_signal = False
+            # Sell signal: RSI > 70, MACD histogram < 0, and price < upper Bollinger Band
+            if self.rsi > 70 and self.macd_histogram < 0 and self.current_price < self.upper_band:
+                self.sell_signal = True
+            else:
+                self.sell_signal = False
 
-        # Execute the buy or sell orders based on the signals
-        if self.buy_signal and self.balance > 0:
-            data = {
-                "current_price": self.current_price,
-                "current_balance": self.balance,
-            }
-            await self.execute_buy_all(data)
+            # Debug logs for strategy signals and indicators
+            debug_logger.debug(f"Buy signal for {self.ticker}: {self.buy_signal}")
+            debug_logger.debug(f"Sell signal for {self.ticker}: {self.sell_signal}")
+            debug_logger.debug(f"RSI for {self.ticker}: {self.rsi}")
+            debug_logger.debug(f"MACD histogram for {self.ticker}: {self.macd_histogram}")
+            debug_logger.debug(f"Current price for {self.ticker}: {self.current_price}")
+            debug_logger.debug(f"Lower Bollinger Band for {self.ticker}: {self.lower_band}")
+            debug_logger.debug(f"Upper Bollinger Band for {self.ticker}: {self.upper_band}")
 
-        if self.sell_signal:
-            data = {
-                "current_price": self.current_price,
-                "current_balance": self.position_size * self.current_price,
-            }
-
-            if self.position_size > 0:
-                if self.current_price < self.five_day_moving_average:
-                    await self.execute_sell_half(data)
-                elif self.current_price < self.ten_day_moving_average:
-                    await self.execute_sell_all(data)
-
+        except Exception as e:
+            error_logger.error(f"Error in executing strategy for {self.ticker}: {e}", exc_info=True)
+            await send_telegram_message(self.bot, f"Error in executing strategy for {self.ticker}: {e}")
 
 
     async def get_buy_signals(self):
@@ -804,10 +809,10 @@ class TradingBot:
     async def validate_order_amount(self, allocated_amount):
         market_type = self.ticker.split('-')[0]
         if market_type == "KRW" and allocated_amount < 5000:
-            logger.error(f"Order amount {allocated_amount} is below the minimum for KRW market (5000 KRW)")
+            error_logger.error(f"Order amount {allocated_amount} is below the minimum for KRW market (5000 KRW)")
             return False
         elif market_type in ["BTC", "ETH", "DOGE"] and allocated_amount < 10000:
-            logger.error(f"Order amount {allocated_amount} is below the minimum for {market_type} market (10000 KRW equivalent)")
+            error_logger.error(f"Order amount {allocated_amount} is below the minimum for {market_type} market (10000 KRW equivalent)")
             return False
         return True
 
@@ -859,7 +864,7 @@ class TradingBot:
         try:
             candles = await self.get_async_ohlcv(self.ticker, 60)
             if candles is None:
-                logger.error(f"Error fetching {self.ticker} data for RSI calculation")
+                error_logger.error(f"Error fetching {self.ticker} data for RSI calculation")
                 await send_telegram_message(self.bot, f"Error fetching {self.ticker} data for RSI calculation")
                 return None
 
@@ -875,17 +880,18 @@ class TradingBot:
             rs = ema_up / ema_down
             self.rsi = 100 - (100 / (1 + rs.values[-1]))
 
-        except Exception as e:
-            logger.exception(f"Error in getting RSI for {self.ticker}: {e}")
-            await send_telegram_message(self.bot, f"Error in getting RSI for {self.ticker}: {e}")
+            debug_logger.debug(f"RSI for {self.ticker}: {self.rsi}")
 
+        except Exception as e:
+            error_logger.exception(f"Error in getting RSI for {self.ticker}: {e}")
+            await send_telegram_message(self.bot, f"Error in getting RSI for {self.ticker}: {e}")
 
     # Moving Average Convergence Divergence-추세의 방향과 주가움직임 분석지표
     async def get_macd(self, fast=12, slow=26, signal=9):
         try:
             candles = await self.get_async_ohlcv(self.ticker, 60)
             if candles is None:
-                logger.error(f"Error fetching {self.ticker} data for MACD calculation")
+                error_logger.error(f"Error fetching {self.ticker} data for MACD calculation")
                 await send_telegram_message(self.bot, f"Error fetching {self.ticker} data for MACD calculation")
                 return None
 
@@ -898,22 +904,12 @@ class TradingBot:
             self.signal_line = signal_line.values[-1]
             self.macd_histogram = self.macd - self.signal_line
 
-            # Check for MACD crossover with signal line
-            if self.macd_histogram is not None and self.previous_macd_histogram is not None:
-                if self.macd_histogram > 0 and self.previous_macd_histogram < 0:
-                    self.buy_signal = True
-                    self.sell_signal = False
-                elif self.macd_histogram < 0 and self.previous_macd_histogram > 0:
-                    self.buy_signal = False
-                    self.sell_signal = True
-                else:
-                    self.buy_signal = False
-                    self.sell_signal = False
-
-                self.previous_macd_histogram = self.macd_histogram
+            debug_logger.debug(f"MACD for {self.ticker}: {self.macd}")
+            debug_logger.debug(f"Signal line for {self.ticker}: {self.signal_line}")
+            debug_logger.debug(f"MACD histogram for {self.ticker}: {self.macd_histogram}")
 
         except Exception as e:
-            logger.exception(f"Error in getting MACD for {self.ticker}: {e}")
+            error_logger.exception(f"Error in getting MACD for {self.ticker}: {e}")
             await send_telegram_message(self.bot, f"Error in getting MACD for {self.ticker}: {e}")
 
 
@@ -961,7 +957,7 @@ class TradingBot:
         try:
             candles = await self.get_async_ohlcv(self.ticker, 1)
             if candles is None:
-                logger.error(f"Error fetching {self.ticker} data for Bollinger Bands calculation")
+                error_logger.error(f"Error fetching {self.ticker} data for Bollinger Bands calculation")
                 await send_telegram_message(self.bot, f"Error fetching {self.ticker} data for Bollinger Bands calculation")
                 return None
 
@@ -978,54 +974,53 @@ class TradingBot:
 
             self.bollinger_bands = df.iloc[-1][["upper", "MA", "lower"]].to_dict()
 
+            debug_logger.debug(f"Bollinger Bands for {self.ticker}: {self.bollinger_bands}")
+
         except Exception as e:
-            logger.exception(f"Error in getting Bollinger Bands for {self.ticker}: {e}")
+            error_logger.exception(f"Error in getting Bollinger Bands for {self.ticker}: {e}")
             await send_telegram_message(self.bot, f"Error in getting Bollinger Bands for {self.ticker}: {e}")
 
 
     async def execute_sell_all(self, data):
-        sell_amount = self.position_size
-        sell_value = sell_amount * await self.get_current_price(self.ticker)
-        if not await self.validate_order_amount(sell_value):
-            return
+        try:
+            sell_amount = self.position_size
+            sell_value = sell_amount * await self.get_current_price(self.ticker)
+            if not await self.validate_order_amount(sell_value):
+                return
 
-        trade_cost = self.calculate_transaction_cost(data["current_price"], sell_amount, False)
+            trade_cost = self.calculate_transaction_cost(data["current_price"], sell_amount, False)
 
-        if data["current_balance"] < sell_amount * data["current_price"] + trade_cost:
-            await self.handle_error(f"Insufficient balance to cover the cost of the trade. Current balance: {data['current_balance']}, Trade cost: {trade_cost}, Sell amount: {sell_amount}")
-            return
+            if data["current_balance"] < sell_amount * data["current_price"] + trade_cost:
+                await self.handle_error(f"Insufficient balance to cover the cost of the trade. Current balance: {data['current_balance']}, Trade cost: {trade_cost}, Sell amount: {sell_amount}")
+                return
 
-        await self.async_sell_market_order(self.ticker, sell_amount - trade_cost)
+            await self.async_sell_market_order(self.ticker, sell_amount - trade_cost)
 
-        if self.verify_order(self.ticker):
-            self.balance += sell_amount * data["current_price"] - trade_cost
-            self.position_size = 0
-            await send_telegram_message(self.bot, f"Sold all {self.ticker} at {data['current_price']}")
+            if self.verify_order(self.ticker):
+                self.balance += sell_amount * data["current_price"] - trade_cost
+                self.position_size = 0
+                await send_telegram_message(self.bot, f"Sold all {self.ticker} at {data['current_price']}")
+
+        except Exception as e:
+            error_logger.exception(f"Error executing sell all for {self.ticker}: {e}")
+            await send_telegram_message(self.bot, f"Error executing sell all for {self.ticker}: {e}")
 
 
 
 #The main function sets up and manages the trading bot, initializing all required components, 
 # fetching required data, and managing the execution of the various tasks. 
 # It also handles scheduling and sending notifications via Telegram.
-async def run_strategy_for_all_bots(bot_instances):
-    while True:
-        for bot in bot_instances:
-            await bot.strategy()
-            await bot.update_trailing_stop()
-        await asyncio.sleep(60)  # Adjust the sleep time as needed
-
-
 async def main():
-    # Initialize the bot with the token
-    bot = Bot(token=TELEGRAM_BOT_TOKEN)
+    try:
+        # Initialize the bot with the token
+        bot = Bot(token=TELEGRAM_BOT_TOKEN)
 
-    # Define the tickers for the trading pairs
-    tickers = ["KRW-BTC", "KRW-ETH", "KRW-DOGE"]
+        # Define the tickers for the trading pairs
+        tickers = ["KRW-BTC", "KRW-ETH", "KRW-DOGE"]
 
-    # Create an aiohttp ClientSession
-    async with aiohttp.ClientSession() as session:
+        # Create an aiohttp ClientSession
+        async with aiohttp.ClientSession() as session:
 
-        try:
             # Send an initial notification to the Telegram group
             await send_initial_notification(bot, session)
 
@@ -1056,12 +1051,12 @@ async def main():
             orders = [("BTC-KRW", 0.01), ("ETH-KRW", 0.1), ("DOGE-KRW", 100)]
             await process_orders_and_send_balance(session, orders)
 
-        except Exception as e:
-            logger.exception("An error occurred in main(): %s", e)
+    except Exception as e:
+        error_logger.exception("An error occurred in main(): %s", e)
 
-        finally:
-            # Clean up the bot instances
-            await cleanup(bot_instances)
+    finally:
+        # Clean up the bot instances
+        await cleanup(bot_instances)
 
     # Close the bot
     await bot.close()
