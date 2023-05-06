@@ -1,223 +1,140 @@
-(peterpae) ubuntu@upbit-01:~/Auto$ python coin_telegram.py
-DEBUG:__main__:Configuration file read successfully.
-DEBUG:asyncio:Using selector: EpollSelector
-DEBUG:debug:Candles:     market candle_date_time_utc  ... change_price  change_rate
-0  KRW-BTC  2023-05-06T00:00:00  ...      59000.0     0.001511
-1  KRW-BTC  2023-05-05T00:00:00  ...     473000.0     0.012260
-2  KRW-BTC  2023-05-04T00:00:00  ...    -123000.0    -0.003178
-3  KRW-BTC  2023-05-03T00:00:00  ...     298000.0     0.007759
-4  KRW-BTC  2023-05-02T00:00:00  ...     636000.0     0.016839
-
-[5 rows x 13 columns]
+peterpae) ubuntu@upbit-01:~/Auto$ python coin_telegram.py
 ERROR:__main__:Error in getting moving average for KRW-BTC: string indices must be integers
 Traceback (most recent call last):
-  File "coin_telegram.py", line 548, in get_moving_average
+  File "coin_telegram.py", line 549, in get_moving_average
     close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 548, in <listcomp>
+  File "coin_telegram.py", line 549, in <listcomp>
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
 ERROR:error:Error in getting moving average for KRW-BTC: string indices must be integers
 Traceback (most recent call last):
-  File "coin_telegram.py", line 548, in get_moving_average
+  File "coin_telegram.py", line 549, in get_moving_average
     close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 548, in <listcomp>
+  File "coin_telegram.py", line 549, in <listcomp>
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
-DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-BTC: string indices must be integers'}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":569,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683346224,"text":"Error in getting moving average for KRW-BTC: string indices must be integers"}}'"
-coin_telegram.py:140: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
-DEBUG:debug:Candles:     market candle_date_time_utc  ... change_price  change_rate
-0  KRW-BTC  2023-05-06T00:00:00  ...      59000.0     0.001511
-1  KRW-BTC  2023-05-05T00:00:00  ...     473000.0     0.012260
-2  KRW-BTC  2023-05-04T00:00:00  ...    -123000.0    -0.003178
-3  KRW-BTC  2023-05-03T00:00:00  ...     298000.0     0.007759
-4  KRW-BTC  2023-05-02T00:00:00  ...     636000.0     0.016839
-5  KRW-BTC  2023-05-01T00:00:00  ...   -1380000.0    -0.035250
-6  KRW-BTC  2023-04-30T00:00:00  ...     184000.0     0.004722
-7  KRW-BTC  2023-04-29T00:00:00  ...    -118000.0    -0.003019
-8  KRW-BTC  2023-04-28T00:00:00  ...    -175000.0    -0.004458
-9  KRW-BTC  2023-04-27T00:00:00  ...    1241000.0     0.032643
-
-[10 rows x 13 columns]
 ERROR:__main__:Error in getting moving average for KRW-BTC: string indices must be integers
 Traceback (most recent call last):
-  File "coin_telegram.py", line 548, in get_moving_average
+  File "coin_telegram.py", line 549, in get_moving_average
     close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 548, in <listcomp>
+  File "coin_telegram.py", line 549, in <listcomp>
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
 ERROR:error:Error in getting moving average for KRW-BTC: string indices must be integers
 Traceback (most recent call last):
-  File "coin_telegram.py", line 548, in get_moving_average
+  File "coin_telegram.py", line 549, in get_moving_average
     close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 548, in <listcomp>
+  File "coin_telegram.py", line 549, in <listcomp>
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
-DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-BTC: string indices must be integers'}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":570,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683346225,"text":"Error in getting moving average for KRW-BTC: string indices must be integers"}}'"
-coin_telegram.py:140: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 ERROR:error:Error fetching moving averages for KRW-BTC
 ERROR:error:Error fetching allocated amount for KRW-BTC
 ERROR:error:Error in getting position size for KRW-BTC: get_balances() missing 1 required positional argument: 'session'
 Traceback (most recent call last):
-  File "coin_telegram.py", line 526, in get_position_size
+  File "coin_telegram.py", line 527, in get_position_size
     account = await get_balances()
 TypeError: get_balances() missing 1 required positional argument: 'session'
-DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in getting position size for KRW-BTC: get_balances() missing 1 required positional argument: 'session'"}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":571,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683346226,"text":"Error in getting position size for KRW-BTC: get_balances() missing 1 required positional argument: \'session\'"}}'"
-coin_telegram.py:140: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
-DEBUG:debug:Candles:     market candle_date_time_utc  ... change_price  change_rate
-0  KRW-ETH  2023-05-06T00:00:00  ...     -14000.0    -0.005305
-1  KRW-ETH  2023-05-05T00:00:00  ...     130000.0     0.051813
-2  KRW-ETH  2023-05-04T00:00:00  ...     -33000.0    -0.012982
-3  KRW-ETH  2023-05-03T00:00:00  ...      38000.0     0.015176
-4  KRW-ETH  2023-05-02T00:00:00  ...      43000.0     0.017473
-
-[5 rows x 13 columns]
 ERROR:__main__:Error in getting moving average for KRW-ETH: string indices must be integers
 Traceback (most recent call last):
-  File "coin_telegram.py", line 548, in get_moving_average
+  File "coin_telegram.py", line 549, in get_moving_average
     close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 548, in <listcomp>
+  File "coin_telegram.py", line 549, in <listcomp>
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
 ERROR:error:Error in getting moving average for KRW-ETH: string indices must be integers
 Traceback (most recent call last):
-  File "coin_telegram.py", line 548, in get_moving_average
+  File "coin_telegram.py", line 549, in get_moving_average
     close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 548, in <listcomp>
+  File "coin_telegram.py", line 549, in <listcomp>
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
-DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-ETH: string indices must be integers'}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":572,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683346227,"text":"Error in getting moving average for KRW-ETH: string indices must be integers"}}'"
-coin_telegram.py:140: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
-DEBUG:debug:Candles:     market candle_date_time_utc  ... change_price  change_rate
-0  KRW-ETH  2023-05-06T00:00:00  ...     -14000.0    -0.005305
-1  KRW-ETH  2023-05-05T00:00:00  ...     130000.0     0.051813
-2  KRW-ETH  2023-05-04T00:00:00  ...     -33000.0    -0.012982
-3  KRW-ETH  2023-05-03T00:00:00  ...      38000.0     0.015176
-4  KRW-ETH  2023-05-02T00:00:00  ...      43000.0     0.017473
-5  KRW-ETH  2023-05-01T00:00:00  ...     -45000.0    -0.017957
-6  KRW-ETH  2023-04-30T00:00:00  ...     -35000.0    -0.013774
-7  KRW-ETH  2023-04-29T00:00:00  ...      18000.0     0.007134
-8  KRW-ETH  2023-04-28T00:00:00  ...     -21000.0    -0.008255
-9  KRW-ETH  2023-04-27T00:00:00  ...      46000.0     0.018415
-
-[10 rows x 13 columns]
 ERROR:__main__:Error in getting moving average for KRW-ETH: string indices must be integers
 Traceback (most recent call last):
-  File "coin_telegram.py", line 548, in get_moving_average
+  File "coin_telegram.py", line 549, in get_moving_average
     close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 548, in <listcomp>
+  File "coin_telegram.py", line 549, in <listcomp>
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
 ERROR:error:Error in getting moving average for KRW-ETH: string indices must be integers
 Traceback (most recent call last):
-  File "coin_telegram.py", line 548, in get_moving_average
+  File "coin_telegram.py", line 549, in get_moving_average
     close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 548, in <listcomp>
+  File "coin_telegram.py", line 549, in <listcomp>
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
-DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-ETH: string indices must be integers'}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":573,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683346228,"text":"Error in getting moving average for KRW-ETH: string indices must be integers"}}'"
-coin_telegram.py:140: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 ERROR:error:Error fetching moving averages for KRW-ETH
 ERROR:error:Error fetching allocated amount for KRW-ETH
 ERROR:error:Error in getting position size for KRW-ETH: get_balances() missing 1 required positional argument: 'session'
 Traceback (most recent call last):
-  File "coin_telegram.py", line 526, in get_position_size
+  File "coin_telegram.py", line 527, in get_position_size
     account = await get_balances()
 TypeError: get_balances() missing 1 required positional argument: 'session'
-DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in getting position size for KRW-ETH: get_balances() missing 1 required positional argument: 'session'"}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":574,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683346229,"text":"Error in getting position size for KRW-ETH: get_balances() missing 1 required positional argument: \'session\'"}}'"
-coin_telegram.py:140: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
-DEBUG:debug:Candles:      market candle_date_time_utc  ... change_price  change_rate
-0  KRW-DOGE  2023-05-06T00:00:00  ...         -1.0    -0.009434
-1  KRW-DOGE  2023-05-05T00:00:00  ...          2.0     0.019231
-2  KRW-DOGE  2023-05-04T00:00:00  ...         -3.0    -0.028037
-3  KRW-DOGE  2023-05-03T00:00:00  ...          1.0     0.009434
-4  KRW-DOGE  2023-05-02T00:00:00  ...          1.0     0.009524
-
-[5 rows x 13 columns]
 ERROR:__main__:Error in getting moving average for KRW-DOGE: string indices must be integers
 Traceback (most recent call last):
-  File "coin_telegram.py", line 548, in get_moving_average
+  File "coin_telegram.py", line 549, in get_moving_average
     close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 548, in <listcomp>
+  File "coin_telegram.py", line 549, in <listcomp>
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
 ERROR:error:Error in getting moving average for KRW-DOGE: string indices must be integers
 Traceback (most recent call last):
-  File "coin_telegram.py", line 548, in get_moving_average
+  File "coin_telegram.py", line 549, in get_moving_average
     close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 548, in <listcomp>
+  File "coin_telegram.py", line 549, in <listcomp>
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
-DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-DOGE: string indices must be integers'}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":575,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683346230,"text":"Error in getting moving average for KRW-DOGE: string indices must be integers"}}'"
-coin_telegram.py:140: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
-DEBUG:debug:Candles:      market candle_date_time_utc  ... change_price  change_rate
-0  KRW-DOGE  2023-05-06T00:00:00  ...         -1.0    -0.009434
-1  KRW-DOGE  2023-05-05T00:00:00  ...          2.0     0.019231
-2  KRW-DOGE  2023-05-04T00:00:00  ...         -3.0    -0.028037
-3  KRW-DOGE  2023-05-03T00:00:00  ...          1.0     0.009434
-4  KRW-DOGE  2023-05-02T00:00:00  ...          1.0     0.009524
-5  KRW-DOGE  2023-05-01T00:00:00  ...         -1.0    -0.009434
-6  KRW-DOGE  2023-04-30T00:00:00  ...         -2.0    -0.018519
-7  KRW-DOGE  2023-04-29T00:00:00  ...          1.0     0.009346
-8  KRW-DOGE  2023-04-28T00:00:00  ...          1.0     0.009434
-9  KRW-DOGE  2023-04-27T00:00:00  ...          NaN     0.000000
-
-[10 rows x 13 columns]
 ERROR:__main__:Error in getting moving average for KRW-DOGE: string indices must be integers
 Traceback (most recent call last):
-  File "coin_telegram.py", line 548, in get_moving_average
+  File "coin_telegram.py", line 549, in get_moving_average
     close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 548, in <listcomp>
+  File "coin_telegram.py", line 549, in <listcomp>
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
 ERROR:error:Error in getting moving average for KRW-DOGE: string indices must be integers
 Traceback (most recent call last):
-  File "coin_telegram.py", line 548, in get_moving_average
+  File "coin_telegram.py", line 549, in get_moving_average
     close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 548, in <listcomp>
+  File "coin_telegram.py", line 549, in <listcomp>
     close_prices = [candle['trade_price'] for candle in candles]
 TypeError: string indices must be integers
-DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': 'Error in getting moving average for KRW-DOGE: string indices must be integers'}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":576,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683346231,"text":"Error in getting moving average for KRW-DOGE: string indices must be integers"}}'"
-coin_telegram.py:140: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 ERROR:error:Error fetching moving averages for KRW-DOGE
 ERROR:error:Error fetching allocated amount for KRW-DOGE
 ERROR:error:Error in getting position size for KRW-DOGE: get_balances() missing 1 required positional argument: 'session'
 Traceback (most recent call last):
-  File "coin_telegram.py", line 526, in get_position_size
+  File "coin_telegram.py", line 527, in get_position_size
     account = await get_balances()
 TypeError: get_balances() missing 1 required positional argument: 'session'
-DEBUG:aiogram:Make request: "sendMessage" with data: "{'chat_id': '50662379', 'text': "Error in getting position size for KRW-DOGE: get_balances() missing 1 required positional argument: 'session'"}" and files "None"
-DEBUG:aiogram:Response for sendMessage: [200] "'{"ok":true,"result":{"message_id":577,"from":{"id":5838539591,"is_bot":true,"first_name":"peterpae_bot","username":"peterpae_bot"},"chat":{"id":50662379,"first_name":"\\ud76c\\ucca0","last_name":"\\ubc30","username":"best4eye","type":"private"},"date":1683346232,"text":"Error in getting position size for KRW-DOGE: get_balances() missing 1 required positional argument: \'session\'"}}'"
-coin_telegram.py:140: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 ERROR:error:An error occurred in main(): send_initial_notification() missing 1 required positional argument: 'bot_instances'
 Traceback (most recent call last):
-  File "coin_telegram.py", line 1062, in main
+  File "coin_telegram.py", line 1063, in main
     await send_initial_notification(bot, session)
 TypeError: send_initial_notification() missing 1 required positional argument: 'bot_instances'
-coin_telegram.py:1091: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+coin_telegram.py:1092: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
-Exception ignored in: <function _SelectorTransport.__del__ at 0x7f943a86d280>
+Exception ignored in: <function _SelectorTransport.__del__ at 0x7fabaa3ba280>
 Traceback (most recent call last):
   File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/selector_events.py", line 696, in __del__
     _warn(f"unclosed transport {self!r}", ResourceWarning, source=self)
 TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <function _SelectorTransport.__del__ at 0x7f943a86d280>
+Exception ignored in: <function _SelectorTransport.__del__ at 0x7fabaa3ba280>
 Traceback (most recent call last):
   File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/selector_events.py", line 696, in __del__
     _warn(f"unclosed transport {self!r}", ResourceWarning, source=self)
