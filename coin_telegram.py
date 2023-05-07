@@ -1,6 +1,6 @@
 import pytz
 import pyupbit
-import telegram
+#import telegram
 import jwt
 import hashlib
 import os
@@ -28,13 +28,31 @@ from aiogram.utils.deprecated import deprecated
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.types import ParseMode
-from throttler import Throttler
+#from throttler import Throttler
+from logging import FileHandler
 
 warnings.simplefilter("ignore", deprecated)
-logging.basicConfig(level=logging.DEBUG)
 
+# Set up logging
+logging.basicConfig(level=logging.WARNING)
+error_logger = logging.getLogger("error")
+debug_logger = logging.getLogger("debug")
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)  # You can adjust the log level as needed
+logger.setLevel(logging.WARNING)  # Adjust the log level as needed
+
+# Set up logger for errors
+error_handler = logging.FileHandler("error.log")
+error_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+error_handler.setFormatter(error_formatter)
+error_handler.setLevel(logging.WARNING)  # Log only warning or error messages
+logger.addHandler(error_handler)
+
+# Set up logger for debugs
+debug_handler = logging.FileHandler("debug.log")
+debug_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+debug_handler.setFormatter(debug_formatter)
+debug_handler.setLevel(logging.DEBUG)
+logger.addHandler(debug_handler)
 
 
 # Read the API keys and chat ID from the config file
@@ -51,20 +69,6 @@ MAX_POSITIONS = 3
 MAKER_FEE = 0.0005
 TAKER_FEE = 0.0005
 SLIPPAGE = 0.01
-
-# Set up logger for errors
-error_handler = logging.FileHandler("error.log")
-error_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-error_handler.setFormatter(error_formatter)
-error_handler.setLevel(logging.ERROR)
-logger.addHandler(error_handler)
-
-# Set up logger for debugs
-debug_handler = logging.FileHandler("debug.log")
-debug_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-debug_handler.setFormatter(debug_formatter)
-debug_handler.setLevel(logging.DEBUG)
-logger.addHandler(debug_handler)
 
 
 # Function to create JWT token
@@ -144,8 +148,7 @@ async def get_balances(session):
     return await fetch(session, url, UPBIT_ACCESS_KEY, UPBIT_SECRET_KEY, json.dumps(query))
 
 
-
-# Get the total KRW balance of each asset
+# Get the total KRW balance(numberstring is Upbit) of each asset turn to float for calculation
 async def get_balance(session):
     balances = await get_balances(session)
     if not balances:
@@ -160,17 +163,20 @@ async def get_balance(session):
             error_logger.error("Unexpected balance format.")
             continue
 
+        balance_float = float(balance.get('balance', '0'))  # Convert the balance to a float
+
         if currency == 'KRW':
-            total_krw_balance += float(balance.get('balance', 0))
+            total_krw_balance += balance_float
         else:
             ticker = f"KRW-{currency}"
             current_price = await get_current_price(session, ticker)
             if current_price:
-                total_krw_balance += float(balance.get('balance', 0)) * current_price
+                total_krw_balance += balance_float * current_price
             else:
                 error_logger.error(f"Error fetching {ticker} current price.")
 
     return total_krw_balance
+
 
 # Get current price of a specific ticker
 async def get_current_price(session, ticker):
@@ -379,7 +385,7 @@ class TradingBot:
         try:
             bot_instance = cls(session, ticker, bot, slippage, trading_fee)
             bot_instance.base_currency = 'KRW'  # Set the base currency here
-            bot_instance.position_size = await bot_instance.get_position_size()
+            bot_instance.position_size = await bot_instance.get_position_size(session)
             await bot_instance.fetch_balances()  # Fetch balances when creating a new instance
             return bot_instance
         except Exception as e:
@@ -509,7 +515,7 @@ class TradingBot:
 
 
     #사용가능한 KRW잔고기반 position size계산 및 trade risk and fee정산후 정수화
-    async def get_position_size(self):
+    async def get_position_size(self, session):
         try:
             current_price = await self.get_current_price(self.ticker)
 
@@ -520,7 +526,7 @@ class TradingBot:
             allocated_amount = await self.get_allocated_amount(current_price)
             volume = await self.get_volume(current_price, allocated_amount)
 
-            account = await get_balances()
+            account = await get_balances(session)
             krw_balance = float([wallet['balance'] for wallet in account if wallet['currency'] == 'KRW'][0])
             risk_amount = krw_balance * self.risk_per_trade
             volume = (risk_amount / current_price) * (1 - 0.0025) * (1 - 0.01)
@@ -539,11 +545,10 @@ class TradingBot:
             if candles is None:
                 await self.handle_error("Error fetching data for moving average calculation", "getting moving average")
                 return None
-            
+        
             debug_logger.debug("Candles: %s", candles)  # Add this line to print the candles data
 
-            close_prices = [candle['trade_price'] for candle in candles]
-            close_prices_series = pd.Series(close_prices)
+            close_prices_series = candles['trade_price']
             moving_average = close_prices_series.rolling(window=window).mean().values[-1]
             return moving_average
         except Exception as e:
@@ -552,13 +557,17 @@ class TradingBot:
             return None
 
 
+
     # Get ohlcv, using sigle session for multiple requests not everytime multi sessions
     # This function must controlled in main() with 'await bot_instance.close()'
     async def get_async_ohlcv(self, ticker, interval='60', count=200):
         if interval == 'day':
             url = "https://api.upbit.com/v1/candles/days"
-        else:
+        elif interval in ['1', '3', '5', '10', '15', '30', '60', '240']:
             url = f"https://api.upbit.com/v1/candles/minutes/{interval}"
+        else:
+            logger.error(f"Invalid interval: {interval}")
+            return None
 
         params = {"market": ticker, "count": count}
 
@@ -568,7 +577,16 @@ class TradingBot:
                 if 'error' in data:
                     logger.error(f"Error fetching {ticker} OHLCV data: {data['error']}")
                     return None
-                return pd.DataFrame(data)
+                ohlcv_dataframe = pd.DataFrame(data)
+                ohlcv_dataframe = ohlcv_dataframe[['candle_date_time_utc', 'opening_price', 'high_price', 'low_price', 'trade_price', 'candle_acc_trade_volume', 'unit']]
+                ohlcv_dataframe.columns = ['datetime', 'open', 'high', 'low', 'close', 'volume', 'unit']
+                try:
+                    close_prices = ohlcv_dataframe['close']
+                except KeyError:
+                    print("Error: 'close' Key not found in the DataFrame")
+                    # Handle the error or use an alternative key to get the closing price
+                    return None
+                return close_prices
         except aiohttp.ClientResponseError as e:
             if e.status == 429:
                 logger.warning(f"Rate limit exceeded while fetching {ticker} OHLCV data. Retrying in {e.headers.get('Retry-After', 60)} seconds.")
@@ -581,12 +599,6 @@ class TradingBot:
             logger.error(f"Error fetching {ticker} OHLCV data: {e}", exc_info=True)
             return None
 
-
-
-    # Asynchronous call for get_ohlcv() 
-    async def get_ohlcv(self, ticker, interval='day', count=20):
-        intervals = {'day': 'day', 'hour': '60', 'minute': '1'}
-        return await self.get_async_ohlcv(ticker, intervals.get(interval, '60'), count)
 
 
     # Asynchronous call for get_orderbook() functions
@@ -1038,6 +1050,9 @@ async def cleanup(bot_instances):
 # fetching required data, and managing the execution of the various tasks. 
 # It also handles scheduling and sending notifications via Telegram.
 async def main():
+    # Initialize bot_instances as an empty list
+    bot_instances = []
+
     try:
         # Initialize bot and dispatcher
         bot = Bot(token=TELEGRAM_BOT_TOKEN)
