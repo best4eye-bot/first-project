@@ -1,141 +1,171 @@
-peterpae) ubuntu@upbit-01:~/Auto$ python coin_telegram.py
-ERROR:__main__:Error in getting moving average for KRW-BTC: string indices must be integers
+(py37_env) ubuntu@upbit-01:~/py37$ python coin_telegram.py
+ERROR:__main__:Error fetching KRW-BTC OHLCV data: "['unit'] not in index"
 Traceback (most recent call last):
-  File "coin_telegram.py", line 549, in get_moving_average
-    close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 549, in <listcomp>
-    close_prices = [candle['trade_price'] for candle in candles]
-TypeError: string indices must be integers
-ERROR:error:Error in getting moving average for KRW-BTC: string indices must be integers
-Traceback (most recent call last):
-  File "coin_telegram.py", line 549, in get_moving_average
-    close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 549, in <listcomp>
-    close_prices = [candle['trade_price'] for candle in candles]
-TypeError: string indices must be integers
-coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  File "coin_telegram.py", line 582, in get_async_ohlcv
+    ohlcv_dataframe = ohlcv_dataframe[['candle_date_time_utc', 'opening_price', 'high_price', 'low_price', 'trade_price', 'candle_acc_trade_volume', 'unit']]
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/frame.py", line 3461, in __getitem__
+    indexer = self.loc._get_listlike_indexer(key, axis=1)[1]
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/indexing.py", line 1314, in _get_listlike_indexer
+    self._validate_read_indexer(keyarr, indexer, axis)
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/indexing.py", line 1377, in _validate_read_indexer
+    raise KeyError(f"{not_found} not in index")
+KeyError: "['unit'] not in index"
+ERROR:error:Error in getting moving average for KRW-BTC: Error fetching data for moving average calculation
+NoneType: None
+coin_telegram.py:142: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
-ERROR:__main__:Error in getting moving average for KRW-BTC: string indices must be integers
+ERROR:__main__:Error fetching KRW-BTC OHLCV data: "['unit'] not in index"
 Traceback (most recent call last):
-  File "coin_telegram.py", line 549, in get_moving_average
-    close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 549, in <listcomp>
-    close_prices = [candle['trade_price'] for candle in candles]
-TypeError: string indices must be integers
-ERROR:error:Error in getting moving average for KRW-BTC: string indices must be integers
-Traceback (most recent call last):
-  File "coin_telegram.py", line 549, in get_moving_average
-    close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 549, in <listcomp>
-    close_prices = [candle['trade_price'] for candle in candles]
-TypeError: string indices must be integers
-coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  File "coin_telegram.py", line 582, in get_async_ohlcv
+    ohlcv_dataframe = ohlcv_dataframe[['candle_date_time_utc', 'opening_price', 'high_price', 'low_price', 'trade_price', 'candle_acc_trade_volume', 'unit']]
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/frame.py", line 3461, in __getitem__
+    indexer = self.loc._get_listlike_indexer(key, axis=1)[1]
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/indexing.py", line 1314, in _get_listlike_indexer
+    self._validate_read_indexer(keyarr, indexer, axis)
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/indexing.py", line 1377, in _validate_read_indexer
+    raise KeyError(f"{not_found} not in index")
+KeyError: "['unit'] not in index"
+ERROR:error:Error in getting moving average for KRW-BTC: Error fetching data for moving average calculation
+NoneType: None
+coin_telegram.py:142: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 ERROR:error:Error fetching moving averages for KRW-BTC
 ERROR:error:Error fetching allocated amount for KRW-BTC
-ERROR:error:Error in getting position size for KRW-BTC: get_balances() missing 1 required positional argument: 'session'
+ERROR:error:Error in getting position size for KRW-BTC: Constructor parameter should be str
 Traceback (most recent call last):
-  File "coin_telegram.py", line 527, in get_position_size
-    account = await get_balances()
-TypeError: get_balances() missing 1 required positional argument: 'session'
-coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  File "coin_telegram.py", line 530, in get_position_size
+    account = await get_balances(session)
+  File "coin_telegram.py", line 149, in get_balances
+    return await fetch(session, url, UPBIT_ACCESS_KEY, UPBIT_SECRET_KEY, json.dumps(query))
+  File "coin_telegram.py", line 117, in fetch
+    async with session.get(url, headers=headers) as response:
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/aiohttp/client.py", line 1141, in __aenter__
+    self._resp = await self._coro
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/aiohttp/client.py", line 423, in _request
+    url = self._build_url(str_or_url)
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/aiohttp/client.py", line 357, in _build_url
+    url = URL(str_or_url)
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/yarl/_url.py", line 154, in __new__
+    raise TypeError("Constructor parameter should be str")
+TypeError: Constructor parameter should be str
+coin_telegram.py:142: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
-ERROR:__main__:Error in getting moving average for KRW-ETH: string indices must be integers
+ERROR:__main__:Error fetching KRW-ETH OHLCV data: "['unit'] not in index"
 Traceback (most recent call last):
-  File "coin_telegram.py", line 549, in get_moving_average
-    close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 549, in <listcomp>
-    close_prices = [candle['trade_price'] for candle in candles]
-TypeError: string indices must be integers
-ERROR:error:Error in getting moving average for KRW-ETH: string indices must be integers
-Traceback (most recent call last):
-  File "coin_telegram.py", line 549, in get_moving_average
-    close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 549, in <listcomp>
-    close_prices = [candle['trade_price'] for candle in candles]
-TypeError: string indices must be integers
-coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  File "coin_telegram.py", line 582, in get_async_ohlcv
+    ohlcv_dataframe = ohlcv_dataframe[['candle_date_time_utc', 'opening_price', 'high_price', 'low_price', 'trade_price', 'candle_acc_trade_volume', 'unit']]
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/frame.py", line 3461, in __getitem__
+    indexer = self.loc._get_listlike_indexer(key, axis=1)[1]
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/indexing.py", line 1314, in _get_listlike_indexer
+    self._validate_read_indexer(keyarr, indexer, axis)
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/indexing.py", line 1377, in _validate_read_indexer
+    raise KeyError(f"{not_found} not in index")
+KeyError: "['unit'] not in index"
+ERROR:error:Error in getting moving average for KRW-ETH: Error fetching data for moving average calculation
+NoneType: None
+coin_telegram.py:142: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
-ERROR:__main__:Error in getting moving average for KRW-ETH: string indices must be integers
+ERROR:__main__:Error fetching KRW-ETH OHLCV data: "['unit'] not in index"
 Traceback (most recent call last):
-  File "coin_telegram.py", line 549, in get_moving_average
-    close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 549, in <listcomp>
-    close_prices = [candle['trade_price'] for candle in candles]
-TypeError: string indices must be integers
-ERROR:error:Error in getting moving average for KRW-ETH: string indices must be integers
-Traceback (most recent call last):
-  File "coin_telegram.py", line 549, in get_moving_average
-    close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 549, in <listcomp>
-    close_prices = [candle['trade_price'] for candle in candles]
-TypeError: string indices must be integers
-coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  File "coin_telegram.py", line 582, in get_async_ohlcv
+    ohlcv_dataframe = ohlcv_dataframe[['candle_date_time_utc', 'opening_price', 'high_price', 'low_price', 'trade_price', 'candle_acc_trade_volume', 'unit']]
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/frame.py", line 3461, in __getitem__
+    indexer = self.loc._get_listlike_indexer(key, axis=1)[1]
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/indexing.py", line 1314, in _get_listlike_indexer
+    self._validate_read_indexer(keyarr, indexer, axis)
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/indexing.py", line 1377, in _validate_read_indexer
+    raise KeyError(f"{not_found} not in index")
+KeyError: "['unit'] not in index"
+ERROR:error:Error in getting moving average for KRW-ETH: Error fetching data for moving average calculation
+NoneType: None
+coin_telegram.py:142: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 ERROR:error:Error fetching moving averages for KRW-ETH
 ERROR:error:Error fetching allocated amount for KRW-ETH
-ERROR:error:Error in getting position size for KRW-ETH: get_balances() missing 1 required positional argument: 'session'
+ERROR:error:Error in getting position size for KRW-ETH: Constructor parameter should be str
 Traceback (most recent call last):
-  File "coin_telegram.py", line 527, in get_position_size
-    account = await get_balances()
-TypeError: get_balances() missing 1 required positional argument: 'session'
-coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  File "coin_telegram.py", line 530, in get_position_size
+    account = await get_balances(session)
+  File "coin_telegram.py", line 149, in get_balances
+    return await fetch(session, url, UPBIT_ACCESS_KEY, UPBIT_SECRET_KEY, json.dumps(query))
+  File "coin_telegram.py", line 117, in fetch
+    async with session.get(url, headers=headers) as response:
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/aiohttp/client.py", line 1141, in __aenter__
+    self._resp = await self._coro
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/aiohttp/client.py", line 423, in _request
+    url = self._build_url(str_or_url)
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/aiohttp/client.py", line 357, in _build_url
+    url = URL(str_or_url)
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/yarl/_url.py", line 154, in __new__
+    raise TypeError("Constructor parameter should be str")
+TypeError: Constructor parameter should be str
+coin_telegram.py:142: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
-ERROR:__main__:Error in getting moving average for KRW-DOGE: string indices must be integers
+ERROR:__main__:Error fetching KRW-DOGE OHLCV data: "['unit'] not in index"
 Traceback (most recent call last):
-  File "coin_telegram.py", line 549, in get_moving_average
-    close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 549, in <listcomp>
-    close_prices = [candle['trade_price'] for candle in candles]
-TypeError: string indices must be integers
-ERROR:error:Error in getting moving average for KRW-DOGE: string indices must be integers
-Traceback (most recent call last):
-  File "coin_telegram.py", line 549, in get_moving_average
-    close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 549, in <listcomp>
-    close_prices = [candle['trade_price'] for candle in candles]
-TypeError: string indices must be integers
-coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  File "coin_telegram.py", line 582, in get_async_ohlcv
+    ohlcv_dataframe = ohlcv_dataframe[['candle_date_time_utc', 'opening_price', 'high_price', 'low_price', 'trade_price', 'candle_acc_trade_volume', 'unit']]
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/frame.py", line 3461, in __getitem__
+    indexer = self.loc._get_listlike_indexer(key, axis=1)[1]
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/indexing.py", line 1314, in _get_listlike_indexer
+    self._validate_read_indexer(keyarr, indexer, axis)
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/indexing.py", line 1377, in _validate_read_indexer
+    raise KeyError(f"{not_found} not in index")
+KeyError: "['unit'] not in index"
+ERROR:error:Error in getting moving average for KRW-DOGE: Error fetching data for moving average calculation
+NoneType: None
+coin_telegram.py:142: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
-ERROR:__main__:Error in getting moving average for KRW-DOGE: string indices must be integers
+ERROR:__main__:Error fetching KRW-DOGE OHLCV data: "['unit'] not in index"
 Traceback (most recent call last):
-  File "coin_telegram.py", line 549, in get_moving_average
-    close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 549, in <listcomp>
-    close_prices = [candle['trade_price'] for candle in candles]
-TypeError: string indices must be integers
-ERROR:error:Error in getting moving average for KRW-DOGE: string indices must be integers
-Traceback (most recent call last):
-  File "coin_telegram.py", line 549, in get_moving_average
-    close_prices = [candle['trade_price'] for candle in candles]
-  File "coin_telegram.py", line 549, in <listcomp>
-    close_prices = [candle['trade_price'] for candle in candles]
-TypeError: string indices must be integers
-coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  File "coin_telegram.py", line 582, in get_async_ohlcv
+    ohlcv_dataframe = ohlcv_dataframe[['candle_date_time_utc', 'opening_price', 'high_price', 'low_price', 'trade_price', 'candle_acc_trade_volume', 'unit']]
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/frame.py", line 3461, in __getitem__
+    indexer = self.loc._get_listlike_indexer(key, axis=1)[1]
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/indexing.py", line 1314, in _get_listlike_indexer
+    self._validate_read_indexer(keyarr, indexer, axis)
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/pandas/core/indexing.py", line 1377, in _validate_read_indexer
+    raise KeyError(f"{not_found} not in index")
+KeyError: "['unit'] not in index"
+ERROR:error:Error in getting moving average for KRW-DOGE: Error fetching data for moving average calculation
+NoneType: None
+coin_telegram.py:142: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 ERROR:error:Error fetching moving averages for KRW-DOGE
 ERROR:error:Error fetching allocated amount for KRW-DOGE
-ERROR:error:Error in getting position size for KRW-DOGE: get_balances() missing 1 required positional argument: 'session'
+ERROR:error:Error in getting position size for KRW-DOGE: Constructor parameter should be str
 Traceback (most recent call last):
-  File "coin_telegram.py", line 527, in get_position_size
-    account = await get_balances()
-TypeError: get_balances() missing 1 required positional argument: 'session'
-coin_telegram.py:141: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+  File "coin_telegram.py", line 530, in get_position_size
+    account = await get_balances(session)
+  File "coin_telegram.py", line 149, in get_balances
+    return await fetch(session, url, UPBIT_ACCESS_KEY, UPBIT_SECRET_KEY, json.dumps(query))
+  File "coin_telegram.py", line 117, in fetch
+    async with session.get(url, headers=headers) as response:
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/aiohttp/client.py", line 1141, in __aenter__
+    self._resp = await self._coro
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/aiohttp/client.py", line 423, in _request
+    url = self._build_url(str_or_url)
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/aiohttp/client.py", line 357, in _build_url
+    url = URL(str_or_url)
+  File "/home/ubuntu/py37/py37_env/lib/python3.7/site-packages/yarl/_url.py", line 154, in __new__
+    raise TypeError("Constructor parameter should be str")
+TypeError: Constructor parameter should be str
+coin_telegram.py:142: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
 ERROR:error:An error occurred in main(): send_initial_notification() missing 1 required positional argument: 'bot_instances'
 Traceback (most recent call last):
-  File "coin_telegram.py", line 1063, in main
+  File "coin_telegram.py", line 1072, in main
     await send_initial_notification(bot, session)
 TypeError: send_initial_notification() missing 1 required positional argument: 'bot_instances'
-coin_telegram.py:1092: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
+coin_telegram.py:1101: DeprecationWarning: Call to deprecated function close (This method's behavior will be changed in aiogram v3.0. More info: https://core.telegram.org/bots/api#close).
   await bot.close()
-Exception ignored in: <function _SelectorTransport.__del__ at 0x7fabaa3ba280>
+Exception ignored in: <function _SelectorTransport.__del__ at 0x7f092e572b00>
 Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/selector_events.py", line 696, in __del__
-    _warn(f"unclosed transport {self!r}", ResourceWarning, source=self)
+  File "/usr/lib/python3.7/asyncio/selector_events.py", line 668, in __del__
+    source=self)
 TypeError: issubclass() arg 2 must be a class or tuple of classes
-Exception ignored in: <function _SelectorTransport.__del__ at 0x7fabaa3ba280>
+Exception ignored in: <function _SelectorTransport.__del__ at 0x7f092e572b00>
 Traceback (most recent call last):
-  File "/home/ubuntu/anaconda3/envs/peterpae/lib/python3.8/asyncio/selector_events.py", line 696, in __del__
-    _warn(f"unclosed transport {self!r}", ResourceWarning, source=self)
+  File "/usr/lib/python3.7/asyncio/selector_events.py", line 668, in __del__
+    source=self)
 TypeError: issubclass() arg 2 must be a class or tuple of classes
